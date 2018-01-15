@@ -70,6 +70,21 @@ extension Droplet {
             try prediction.save()
             return prediction
         }
+        get("predictions") { req in
+            let predix = try Prediction.makeQuery().all()
+            var predixJSON: JSON = JSON()
+            try predixJSON.set("predictions", predix)
+            return predixJSON
+        }
+        get("prediction", ":id") { req in
+            guard let idx: Int = req.parameters["id"]?.int else {
+                throw Abort(.badRequest)
+            }
+            guard let prediction: Prediction = try Prediction.find(idx) else {
+                throw Abort(.notFound)
+            }
+            return prediction
+        }
     }
 
     /// Sets up all routes that can be accessed using
