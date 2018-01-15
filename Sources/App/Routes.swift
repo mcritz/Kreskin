@@ -61,6 +61,15 @@ extension Droplet {
             try user.save()
             return user
         }
+        
+        post("predictions") { req in
+            guard let json = req.json else {
+                throw Abort(.badRequest)
+            }
+            let prediction = try Prediction(json: json)
+            try prediction.save()
+            return prediction
+        }
     }
 
     /// Sets up all routes that can be accessed using
