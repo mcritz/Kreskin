@@ -38,7 +38,7 @@ extension Prediction: Preparation {
         try database.create(self) { builder in
             builder.id()
             builder.string("title")
-            builder.string("descriotion")
+            builder.string("description")
         }
     }
     
@@ -59,12 +59,18 @@ extension Prediction: JSONConvertible {
         try json.set("id", id)
         try json.set("title", title)
         try json.set("descriotion", description)
+        if let updatedAt: Date = self.updatedAt {
+            try json.set("updatedAt", updatedAt)
+        }
+        if let createdAt: Date = self.createdAt {
+            try json.set("createdAt", createdAt)
+        }
         return json
     }
 }
 
 extension Prediction: ResponseRepresentable { }
-
+extension Prediction: Timestampable { }
 
 
 
