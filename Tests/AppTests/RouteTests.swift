@@ -24,6 +24,12 @@ class RouteTests: TestCase {
             .assertStatus(is: .ok)
             .assertBody(contains: "0.0.0.0")
     }
+    
+    func testPredictions() throws {
+        try drop
+            .testResponse(to: .post, at: "predictions")
+            .assertStatus(is: .badRequest)
+        }
 }
 
 // MARK: Manifest
@@ -35,5 +41,6 @@ extension RouteTests {
     static let allTests = [
         ("testHello", testHello),
         ("testInfo", testInfo),
+        ("testPredictions", testPredictions)
     ]
 }
