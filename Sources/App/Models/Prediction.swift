@@ -41,7 +41,7 @@ final class Prediction: Model {
         try row.set("title", title)
         try row.set("premise", premise)
         try row.set("description", description)
-        try row.set("isREvealed", isRevealed)
+        try row.set("isRevealed", isRevealed)
         return row
     }
 }
