@@ -76,7 +76,7 @@ extension Droplet {
             try predixJSON.set("predictions", predix)
             return predixJSON
         }
-        get("prediction", ":id") { req in
+        get("predictions", ":id") { req in
             guard let idx: Int = req.parameters["id"]?.int else {
                 throw Abort(.badRequest)
             }
@@ -88,7 +88,7 @@ extension Droplet {
             }
             return prediction
         }
-        put("prediction", ":id") { req in
+        put("predictions", ":id") { req in
             guard let json: JSON = req.json else {
                 throw Abort(.badRequest)
             }
