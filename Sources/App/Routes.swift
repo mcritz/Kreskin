@@ -95,13 +95,18 @@ extension Droplet {
             guard let idx: Int = req.parameters["id"]?.int else {
                 throw Abort(.badRequest)
             }
-            guard let isRevealed: Bool = json["isRevealed"]?.bool else {
-                throw Abort(.badRequest)
-            }
             guard let predix: Prediction = try Prediction.find(idx) else {
                 throw Abort(.notFound)
             }
-            predix.isRevealed = isRevealed
+            if let isRevealed: Bool = json["isRevealed"]?.bool {
+                predix.isRevealed = isRevealed
+            }
+            if let title: String = json["title"]?.string {
+                predix.title = title
+            }
+            if let description: String = json["description"]?.string {
+                predix.description = description
+            }
             do {
                 try predix.save()
             } catch {
