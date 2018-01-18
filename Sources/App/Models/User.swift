@@ -42,6 +42,13 @@ final class User: Model {
     }
 }
 
+// MARK: Relations & Representation
+extension User {
+    var predictions: Children<User, Prediction> {
+        return children()
+    }
+}
+
 // MARK: Preparation
 
 extension User: Preparation {
@@ -82,6 +89,7 @@ extension User: JSONConvertible {
         try json.set("id", id)
         try json.set("name", name)
         try json.set("email", email)
+        try json.set("predictions", predictions.all())
         return json
     }
 }
