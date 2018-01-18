@@ -16,9 +16,10 @@ final class Prediction: Model {
     var premise: String
     var description: String
     var isRevealed: Bool
+    var userId: Int
     
     
-    init(title: String, premise: String, description: String, isRevealed: Bool? = false) {
+    init(title: String, premise: String, description: String, isRevealed: Bool? = false, userId: Int) {
         self.title = title
         self.premise = premise
         self.description = description
@@ -27,6 +28,7 @@ final class Prediction: Model {
         } else {
             self.isRevealed = false
         }
+        self.userId = userId
     }
     
     init(row: Row) throws {
@@ -34,6 +36,7 @@ final class Prediction: Model {
         premise = try row.get("premise")
         description = try row.get("description")
         isRevealed = try row.get("isRevealed")
+        userId = try row.get("user_id")
     }
     
     func makeRow() throws -> Row {
@@ -42,6 +45,7 @@ final class Prediction: Model {
         try row.set("premise", premise)
         try row.set("description", description)
         try row.set("isRevealed", isRevealed)
+        try row.set("user_id", userId)
         return row
     }
 }
@@ -54,6 +58,7 @@ extension Prediction: Preparation {
             builder.string("premise")
             builder.string("description")
             builder.bool("isRevealed")
+            builder.foreignId(for: User.self)
         }
     }
     
@@ -64,11 +69,13 @@ extension Prediction: Preparation {
 
 extension Prediction: JSONConvertible {
     convenience init(json: JSON) throws {
+        let userId: Int = try json.get("userId")
         try self.init(
             title: json.get("title"),
             premise: json.get("premise"),
             description: json.get("description"),
-            isRevealed: false
+            isRevealed: false,
+            userId: userId
         )
     }
     func makeJSON() throws -> JSON {
@@ -83,6 +90,7 @@ extension Prediction: JSONConvertible {
         if let createdAt: Date = self.createdAt {
             try json.set("createdAt", createdAt)
         }
+        try json.set("userId", userId)
         return json
     }
 }

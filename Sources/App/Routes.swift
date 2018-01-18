@@ -62,20 +62,6 @@ extension Droplet {
             return user
         }
         
-        post("predictions") { req in
-            guard let json = req.json else {
-                throw Abort(.badRequest)
-            }
-            let prediction = try Prediction(json: json)
-            try prediction.save()
-            return prediction
-        }
-        get("predictions") { req in
-            let predix = try Prediction.makeQuery().all()
-            var predixJSON: JSON = JSON()
-            try predixJSON.set("predictions", predix)
-            return predixJSON
-        }
         get("predictions", ":id") { req in
             guard let idx: Int = req.parameters["id"]?.int else {
                 throw Abort(.badRequest)
@@ -164,5 +150,23 @@ extension Droplet {
             let user = try req.user()
             return "Hello, \(user.name)"
         }
+        token.post("predictions") { req in
+            guard var json = req.json else {
+                throw Abort(.badRequest)
+            }
+            let user = try req.user()
+            let userId = user.id
+            try json.set("userId", userId)
+            let prediction = try Prediction(json: json)
+            try prediction.save()
+            return prediction
+        }
+        token.get("predictions") { req in
+            let user = try req.user()
+            let userJSON = try user.makeJSON()
+            let predixJSON: JSON = try userJSON.get("predictions")
+            return predixJSON
+        }
+
     }
 }
