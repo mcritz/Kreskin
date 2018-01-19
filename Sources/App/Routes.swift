@@ -158,9 +158,23 @@ extension Droplet {
         }
         token.get("predictions") { req in
             let user = try req.user()
-            let userJSON = try user.makeJSON()
-            let predixJSON: JSON = try userJSON.get("predictions")
-            return predixJSON
+            var predix: [Prediction] = try user.predictions.all()
+            predix = predix.map{
+                if !$0.isRevealed {
+                    $0.description = "—"
+                }
+                return $0
+            }
+            predix.sort(by: { (A, B) -> Bool in
+                if let aCreatedDate: Date = A.createdAt,
+                    let bCreatedDate: Date = B.createdAt {
+                        return aCreatedDate < bCreatedDate
+                }
+                return false
+            })
+            var responseJSON = JSON()
+            try responseJSON.set("predictions", predix)
+            return responseJSON
         }
 
     }
