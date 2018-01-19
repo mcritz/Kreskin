@@ -19,11 +19,6 @@ extension Droplet {
             return json
         }
 
-        // a simple plaintext example response
-        get("plaintext") { req in
-            return "Hello, world!"
-        }
-
         // response to requests to /info domain
         // with a description of the request
         get("info") { req in
