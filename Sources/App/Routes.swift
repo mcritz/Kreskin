@@ -69,6 +69,7 @@ extension Droplet {
             }
             return prediction
         }
+        
         put("predictions", ":id") { req in
             guard let json: JSON = req.json else {
                 throw Abort(.badRequest)
@@ -94,6 +95,26 @@ extension Droplet {
                 throw Abort(.unauthorized)
             }
             return predix
+        }
+        
+        get("predictions") { req in
+            var predix = try Prediction.makeQuery().all()
+            predix = predix.map{
+                if !$0.isRevealed {
+                    $0.description = "—"
+                }
+                return $0
+            }
+            predix.sort(by: { (A, B) -> Bool in
+                if let aCreatedDate: Date = A.createdAt,
+                    let bCreatedDate: Date = B.createdAt {
+                    return aCreatedDate < bCreatedDate
+                }
+                return false
+            })
+            var responseJSON = JSON()
+            try responseJSON.set("predictions", predix)
+            return responseJSON
         }
     }
 
@@ -156,8 +177,14 @@ extension Droplet {
             try prediction.save()
             return prediction
         }
-        token.get("predictions") { req in
-            let user = try req.user()
+        token.get("users", ":id", "predictions") { req in
+            let maybeId = req.parameters["id"]?.int
+            guard let idx: Int = maybeId else {
+                throw Abort(.badRequest)
+            }
+            guard let user = try User.find(idx) else {
+                throw Abort(.notFound)
+            }
             var predix: [Prediction] = try user.predictions.all()
             predix = predix.map{
                 if !$0.isRevealed {
@@ -168,7 +195,7 @@ extension Droplet {
             predix.sort(by: { (A, B) -> Bool in
                 if let aCreatedDate: Date = A.createdAt,
                     let bCreatedDate: Date = B.createdAt {
-                        return aCreatedDate < bCreatedDate
+                    return aCreatedDate < bCreatedDate
                 }
                 return false
             })
@@ -176,6 +203,5 @@ extension Droplet {
             try responseJSON.set("predictions", predix)
             return responseJSON
         }
-
     }
 }
