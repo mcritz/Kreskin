@@ -12,6 +12,9 @@ extension Droplet {
     /// without any authentication. This includes
     /// creating a new User.
     private func setupUnauthenticatedRoutes() throws {
+        
+        let predixController = PredictionController()
+
         // a simple json example response
         get("hello") { req in
             var json = JSON()
@@ -70,52 +73,29 @@ extension Droplet {
             return prediction
         }
         
-        put("predictions", ":id") { req in
-            guard let json: JSON = req.json else {
-                throw Abort(.badRequest)
-            }
-            guard let idx: Int = req.parameters["id"]?.int else {
-                throw Abort(.badRequest)
-            }
-            guard let predix: Prediction = try Prediction.find(idx) else {
-                throw Abort(.notFound)
-            }
-            if let isRevealed: Bool = json["isRevealed"]?.bool {
-                predix.isRevealed = isRevealed
-            }
-            if let title: String = json["title"]?.string {
-                predix.title = title
-            }
-            if let description: String = json["description"]?.string {
-                predix.description = description
-            }
-            do {
-                try predix.save()
-            } catch {
-                throw Abort(.unauthorized)
-            }
-            return predix
-        }
-        
         get("predictions") { req in
-            var predix = try Prediction.makeQuery().all()
-            predix = predix.map{
-                if !$0.isRevealed {
-                    $0.description = "—"
-                }
-                return $0
-            }
-            predix.sort(by: { (A, B) -> Bool in
-                if let aCreatedDate: Date = A.createdAt,
-                    let bCreatedDate: Date = B.createdAt {
-                    return aCreatedDate < bCreatedDate
-                }
-                return false
-            })
+            let predix = try predixController.preditions(user: nil)
             var responseJSON = JSON()
             try responseJSON.set("predictions", predix)
             return responseJSON
         }
+        
+        get("users", ":id", "predictions") { req in
+            let maybeId = req.parameters["id"]?.int
+            guard let idx: Int = maybeId else {
+                throw Abort(.badRequest)
+            }
+            guard let user = try User.find(idx) else {
+                throw Abort(.notFound)
+            }
+            guard let predix = try predixController.preditions(user: user) else {
+                throw Abort(.internalServerError)
+            }
+            var responseJSON = JSON()
+            try responseJSON.set("predictions", predix)
+            return responseJSON
+        }
+        
         post("logout") { req in
             try req.auth.unauthenticate()
             return "bye"
@@ -170,6 +150,43 @@ extension Droplet {
             let user = try req.user()
             return "Hello, \(user.name)"
         }
+        
+        token.put("predictions", ":id") { req in
+            guard let json: JSON = req.json else {
+                throw Abort(.badRequest)
+            }
+            guard let idx: Int = req.parameters["id"]?.int else {
+                throw Abort(.badRequest)
+            }
+            guard let predix: Prediction = try Prediction.find(idx) else {
+                throw Abort(.notFound)
+            }
+            
+            let user = try req.user()
+            guard let userId: Int = user.id?.int else {
+                throw Abort(.internalServerError)
+            }
+            if userId != predix.userId {
+                throw Abort(.unauthorized)
+            }
+            
+            if let isRevealed: Bool = json["isRevealed"]?.bool {
+                predix.isRevealed = isRevealed
+            }
+            if let title: String = json["title"]?.string {
+                predix.title = title
+            }
+            if let description: String = json["description"]?.string {
+                predix.description = description
+            }
+            do {
+                try predix.save()
+            } catch {
+                throw Abort(.internalServerError)
+            }
+            return predix
+        }
+        
         token.post("predictions") { req in
             guard var json = req.json else {
                 throw Abort(.badRequest)
@@ -180,32 +197,6 @@ extension Droplet {
             let prediction = try Prediction(json: json)
             try prediction.save()
             return prediction
-        }
-        token.get("users", ":id", "predictions") { req in
-            let maybeId = req.parameters["id"]?.int
-            guard let idx: Int = maybeId else {
-                throw Abort(.badRequest)
-            }
-            guard let user = try User.find(idx) else {
-                throw Abort(.notFound)
-            }
-            var predix: [Prediction] = try user.predictions.all()
-            predix = predix.map{
-                if !$0.isRevealed {
-                    $0.description = "—"
-                }
-                return $0
-            }
-            predix.sort(by: { (A, B) -> Bool in
-                if let aCreatedDate: Date = A.createdAt,
-                    let bCreatedDate: Date = B.createdAt {
-                    return aCreatedDate < bCreatedDate
-                }
-                return false
-            })
-            var responseJSON = JSON()
-            try responseJSON.set("predictions", predix)
-            return responseJSON
         }
     }
 }

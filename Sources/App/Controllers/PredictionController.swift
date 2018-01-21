@@ -8,20 +8,30 @@
 import Vapor
 
 class PredictionController {
-    func preditions(user: User?) -> [Prediction]? {
-        var predix: [Prediction]
+    func preditions(user: User?) throws -> [Prediction]? {
+        var maybePredictions: [Prediction]?
         if let realUser: User = user {
-            predix = try user.predictions.all()
-        } else {
-            predix = try predictions.makeQuery().all()
-        }
-        
-        // mask for un-revealed Prediction
-        predix = predix.map{
-            if !$0.isRevealed {
-                $0.description = "–"
+            do {
+                maybePredictions = try realUser.predictions.all()
+            } catch {
+                throw Abort(.internalServerError)
             }
-            return $0
+        } else {
+            do {
+                maybePredictions = try Prediction.makeQuery().all()
+            } catch {
+                throw Abort(.internalServerError)
+            }
+        }
+        guard var predix: [Prediction] = maybePredictions else {
+            throw Abort(.internalServerError)
+        }
+        // mask for un-revealed Prediction
+        predix = predix.map{ prediction in
+            if !prediction.isRevealed {
+                prediction.description = "–"
+            }
+            return prediction
         }
         
         // sort by createdAt
@@ -32,5 +42,6 @@ class PredictionController {
             }
             return false
         })
+        return predix
     }
 }
