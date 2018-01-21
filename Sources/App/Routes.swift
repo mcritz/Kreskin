@@ -116,6 +116,10 @@ extension Droplet {
             try responseJSON.set("predictions", predix)
             return responseJSON
         }
+        post("logout") { req in
+            try req.auth.unauthenticate()
+            return "bye"
+        }
     }
 
     /// Sets up all routes that can be accessed using
