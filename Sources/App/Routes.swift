@@ -80,6 +80,17 @@ extension Droplet {
             return responseJSON
         }
         
+        get("users") { req in
+            var users = try User.makeQuery().all()
+            users = users.map{ user in
+                user.email = ""
+                user.password = nil
+                return user
+            }
+            let usersJSON = try users.makeJSON()
+            return usersJSON
+        }
+        
         get("users", ":id", "predictions") { req in
             let maybeId = req.parameters["id"]?.int
             guard let idx: Int = maybeId else {
