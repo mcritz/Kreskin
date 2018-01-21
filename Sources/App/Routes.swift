@@ -191,11 +191,16 @@ extension Droplet {
             guard var json = req.json else {
                 throw Abort(.badRequest)
             }
-            let user = try req.user()
-            let userId = user.id
-            try json.set("userId", userId)
-            let prediction = try Prediction(json: json)
-            try prediction.save()
+            var prediction: Prediction
+            do {
+                let user = try req.user()
+                let userId = user.id
+                try json.set("userId", userId)
+                prediction = try Prediction(json: json)
+                try prediction.save()
+            } catch {
+                throw Abort(.internalServerError)
+            }
             return prediction
         }
     }
