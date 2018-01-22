@@ -18,4 +18,10 @@ class UserController {
         guard let realString: String = testString else { return false }
         return realString.count >= 3 ? true : false
     }
+    func isValid(password testString: String?) -> Bool {
+        guard let realString: String = testString else { return false }
+        let passwordRegex = "^(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$"
+        let passwordTest = NSPredicate(format:"SELF MATCHES %@", passwordRegex)
+        return passwordTest.evaluate(with: realString)
+    }
 }
