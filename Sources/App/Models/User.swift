@@ -93,6 +93,15 @@ extension User: JSONConvertible {
         guard userController.isValid(name: realName) else {
             throw Abort(.badRequest, reason: "Not a valid name")
         }
+        
+        let maybePassword: String? = try json.get("password")
+        guard let realPassword: String = maybePassword else {
+            throw Abort(.badRequest, reason: "Not a valid password")
+        }
+        guard userController.isValid(password: realPassword) else {
+            throw Abort(.badRequest, reason: "Password must at least 8 characters, have one digit, and contain one of these: #?!@$%^&*-")
+        }
+        
         self.init(
             name: realName,
             email: realEmail
