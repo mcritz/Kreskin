@@ -77,9 +77,25 @@ extension User: Preparation {
 //
 extension User: JSONConvertible {
     convenience init(json: JSON) throws {
-        try self.init(
-            name: json.get("name"),
-            email: json.get("email")
+        let userController = UserController()
+        let maybeEmail: String? = try json.get("email")
+        guard let realEmail: String = maybeEmail else {
+            throw Abort(.badRequest, reason: "Not a valid email address")
+        }
+        guard userController.isValid(email: realEmail) else {
+            throw Abort(.badRequest, reason: "Not a valid email address")
+        }
+        
+        let maybeName: String? = try json.get("name")
+        guard let realName: String = maybeName else {
+            throw Abort(.badRequest, reason: "Not a valid name")
+        }
+        guard userController.isValid(name: realName) else {
+            throw Abort(.badRequest, reason: "Not a valid name")
+        }
+        self.init(
+            name: realName,
+            email: realEmail
         )
         id = try json.get("id")
     }
