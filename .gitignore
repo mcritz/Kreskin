@@ -15,4 +15,4 @@ DerivedData/
 # End of https://www.gitignore.io/api/vapor
 
 # Let’s not have our keys hangning out in GitHub
-Config/crypto.json
+Config/crypto*
