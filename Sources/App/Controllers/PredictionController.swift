@@ -45,6 +45,44 @@ final class PredictionController {
         return prediction
     }
     
+    func update(_ req: Request) throws -> ResponseRepresentable {
+        guard let json: JSON = req.json else {
+            throw Abort(.badRequest)
+        }
+        guard let idx: Int = req.parameters["id"]?.int else {
+            throw Abort(.badRequest)
+        }
+        guard let predix: Prediction = try Prediction.find(idx) else {
+            throw Abort(.notFound)
+        }
+        
+        let user = try req.user()
+        guard let userId: Int = user.id?.int else {
+            throw Abort(.internalServerError)
+        }
+        if userId != predix.userId {
+            throw Abort(.unauthorized)
+        }
+        if let isRevealed: Bool = json["isRevealed"]?.bool {
+            predix.isRevealed = isRevealed
+        }
+        if let title: String = json["title"]?.string {
+            predix.title = title
+        }
+        if let premise: String = json["premise"]?.string {
+            predix.premise = premise
+        }
+        if let description: String = json["description"]?.string {
+            predix.description = description
+        }
+        do {
+            try predix.save()
+        } catch {
+            throw Abort(.internalServerError)
+        }
+        return predix
+    }
+    
     func preditions(user: User?) throws -> [Prediction]? {
         var maybePredictions: [Prediction]?
         if let realUser: User = user {
