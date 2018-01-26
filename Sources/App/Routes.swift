@@ -61,23 +61,13 @@ extension Droplet {
         }
         
         get("predictions", ":id") { req in
-            guard let idx: Int = req.parameters["id"]?.int else {
-                throw Abort(.badRequest)
-            }
-            guard let prediction: Prediction = try Prediction.find(idx) else {
-                throw Abort(.notFound)
-            }
-            if (!prediction.isRevealed) {
-                prediction.description = "—"
-            }
+            let prediction = try predixController.get(req)
             return prediction
         }
         
         get("predictions") { req in
-            let predix = try predixController.preditions(user: nil)
-            var responseJSON = JSON()
-            try responseJSON.set("predictions", predix)
-            return responseJSON
+            let predix = try predixController.index(req)
+            return predix
         }
         
         get("users") { req in
@@ -145,6 +135,8 @@ extension Droplet {
     /// the authentication token received during login.
     /// All of our secure routes will go here.
     private func setupTokenProtectedRoutes() throws {
+        let predixController = PredictionController()
+
         // creates a route group protected by the token middleware.
         // the User type can be passed to this middleware since it
         // conforms to TokenAuthenticatable
@@ -199,19 +191,7 @@ extension Droplet {
         }
         
         token.post("predictions") { req in
-            guard var json = req.json else {
-                throw Abort(.badRequest)
-            }
-            var prediction: Prediction
-            do {
-                let user = try req.user()
-                let userId = user.id
-                try json.set("userId", userId)
-                prediction = try Prediction(json: json)
-                try prediction.save()
-            } catch {
-                throw Abort(.internalServerError)
-            }
+            let prediction = try predixController.create(req)
             return prediction
         }
     }
