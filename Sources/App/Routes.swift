@@ -14,6 +14,7 @@ extension Droplet {
     private func setupUnauthenticatedRoutes() throws {
         
         let predixController = PredictionController()
+        let userController = UserController()
 
         // a simple json example response
         get("hello") { req in
@@ -53,6 +54,14 @@ extension Droplet {
             }
 
             // hash the password and set it on the user
+            /**
+             *
+             *  !!! IMPORTANT !!!
+             *  Expectation is the user of the Bcrypt hasher
+             *  1. Config/droplet.json must have hash set to bcrypt
+             *  2. Config/production/bcrypt.json should have the cost set to 12+
+             * 
+             **/
             user.password = try self.hash.make(password.makeBytes()).makeString()
 
             // save and return the new user
@@ -61,50 +70,23 @@ extension Droplet {
         }
         
         get("predictions", ":id") { req in
-            guard let idx: Int = req.parameters["id"]?.int else {
-                throw Abort(.badRequest)
-            }
-            guard let prediction: Prediction = try Prediction.find(idx) else {
-                throw Abort(.notFound)
-            }
-            if (!prediction.isRevealed) {
-                prediction.description = "—"
-            }
+            let prediction = try predixController.get(req)
             return prediction
         }
         
         get("predictions") { req in
-            let predix = try predixController.preditions(user: nil)
-            var responseJSON = JSON()
-            try responseJSON.set("predictions", predix)
-            return responseJSON
+            let predix = try predixController.index(req)
+            return predix
         }
         
         get("users") { req in
-            var users = try User.makeQuery().all()
-            users = users.map{ user in
-                user.email = ""
-                user.password = nil
-                return user
-            }
-            let usersJSON = try users.makeJSON()
-            return usersJSON
+            let users = try userController.index(req)
+            return users
         }
         
         get("users", ":id", "predictions") { req in
-            let maybeId = req.parameters["id"]?.int
-            guard let idx: Int = maybeId else {
-                throw Abort(.badRequest)
-            }
-            guard let user = try User.find(idx) else {
-                throw Abort(.notFound)
-            }
-            guard let predix = try predixController.preditions(user: user) else {
-                throw Abort(.internalServerError)
-            }
-            var responseJSON = JSON()
-            try responseJSON.set("predictions", predix)
-            return responseJSON
+            let userPredix = try userController.predictionsForUser(with: req)
+            return userPredix
         }
         
         post("logout") { req in
@@ -145,6 +127,8 @@ extension Droplet {
     /// the authentication token received during login.
     /// All of our secure routes will go here.
     private func setupTokenProtectedRoutes() throws {
+        let predixController = PredictionController()
+
         // creates a route group protected by the token middleware.
         // the User type can be passed to this middleware since it
         // conforms to TokenAuthenticatable
@@ -163,55 +147,12 @@ extension Droplet {
         }
         
         token.put("predictions", ":id") { req in
-            guard let json: JSON = req.json else {
-                throw Abort(.badRequest)
-            }
-            guard let idx: Int = req.parameters["id"]?.int else {
-                throw Abort(.badRequest)
-            }
-            guard let predix: Prediction = try Prediction.find(idx) else {
-                throw Abort(.notFound)
-            }
-            
-            let user = try req.user()
-            guard let userId: Int = user.id?.int else {
-                throw Abort(.internalServerError)
-            }
-            if userId != predix.userId {
-                throw Abort(.unauthorized)
-            }
-            
-            if let isRevealed: Bool = json["isRevealed"]?.bool {
-                predix.isRevealed = isRevealed
-            }
-            if let title: String = json["title"]?.string {
-                predix.title = title
-            }
-            if let description: String = json["description"]?.string {
-                predix.description = description
-            }
-            do {
-                try predix.save()
-            } catch {
-                throw Abort(.internalServerError)
-            }
+            let predix = try predixController.update(req)
             return predix
         }
         
         token.post("predictions") { req in
-            guard var json = req.json else {
-                throw Abort(.badRequest)
-            }
-            var prediction: Prediction
-            do {
-                let user = try req.user()
-                let userId = user.id
-                try json.set("userId", userId)
-                prediction = try Prediction(json: json)
-                try prediction.save()
-            } catch {
-                throw Abort(.internalServerError)
-            }
+            let prediction = try predixController.create(req)
             return prediction
         }
     }
