@@ -14,6 +14,7 @@ extension Droplet {
     private func setupUnauthenticatedRoutes() throws {
         
         let predixController = PredictionController()
+        let userController = UserController()
 
         // a simple json example response
         get("hello") { req in
@@ -53,6 +54,14 @@ extension Droplet {
             }
 
             // hash the password and set it on the user
+            /**
+             *
+             *  !!! IMPORTANT !!!
+             *  Expectation is the user of the Bcrypt hasher
+             *  1. Config/droplet.json must have hash set to bcrypt
+             *  2. Config/production/bcrypt.json should have the cost set to 12+
+             * 
+             **/
             user.password = try self.hash.make(password.makeBytes()).makeString()
 
             // save and return the new user
@@ -71,30 +80,13 @@ extension Droplet {
         }
         
         get("users") { req in
-            var users = try User.makeQuery().all()
-            users = users.map{ user in
-                user.email = ""
-                user.password = nil
-                return user
-            }
-            let usersJSON = try users.makeJSON()
-            return usersJSON
+            let users = try userController.index(req)
+            return users
         }
         
         get("users", ":id", "predictions") { req in
-            let maybeId = req.parameters["id"]?.int
-            guard let idx: Int = maybeId else {
-                throw Abort(.badRequest)
-            }
-            guard let user = try User.find(idx) else {
-                throw Abort(.notFound)
-            }
-            guard let predix = try predixController.preditions(user: user) else {
-                throw Abort(.internalServerError)
-            }
-            var responseJSON = JSON()
-            try responseJSON.set("predictions", predix)
-            return responseJSON
+            let userPredix = try userController.predictionsForUser(with: req)
+            return userPredix
         }
         
         post("logout") { req in
