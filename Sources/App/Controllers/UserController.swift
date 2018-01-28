@@ -51,8 +51,8 @@ final class UserController {
     }
     func isValid(password testString: String?) -> Bool {
         guard let realString: String = testString else { return false }
-        let passwordRegex = "^(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$"
-        let passwordTest = NSPredicate(format:"SELF MATCHES %@", passwordRegex)
-        return passwordTest.evaluate(with: realString)
+        let passwordRegex = try! NSRegularExpression(pattern: "^(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$", options: .caseInsensitive)
+        let passwordMatch = passwordRegex.firstMatch(in: realString, options: [], range: NSRange(location: 0, length: realString.characters.count))
+        return passwordMatch != nil
     }
 }
