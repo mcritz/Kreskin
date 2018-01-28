@@ -11,6 +11,7 @@ import Vapor
 final class UserController {
     
     let predixController = PredictionController()
+    let emailRegEx = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
     
     func index(_ req: Request) throws -> ResponseRepresentable {
         var users = try User.makeQuery().all()
@@ -38,13 +39,12 @@ final class UserController {
         try responseJSON.set("predictions", predix)
         return responseJSON
     }
-    
-    func isValid(email testString: String?) -> Bool {
-        guard let realString: String = testString else { return false }
-        let emailRegEx = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
-        let emailTest = NSPredicate(format:"SELF MATCHES %@", emailRegEx)
-        return emailTest.evaluate(with: realString)
+    func isValid(email testString: String) -> Bool {
+        // here, `try!` will always succeed because the pattern is valid
+        let regex = try! NSRegularExpression(pattern: "^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$", options: .caseInsensitive)
+        return regex.firstMatch(in: testString, options: [], range: NSRange(location: 0, length: testString.count)) != nil
     }
+
     func isValid(name testString: String?) -> Bool {
         guard let realString: String = testString else { return false }
         return realString.count >= 3 ? true : false
