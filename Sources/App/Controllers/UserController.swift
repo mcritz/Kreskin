@@ -42,12 +42,12 @@ final class UserController {
     func isValid(email testString: String) -> Bool {
         // here, `try!` will always succeed because the pattern is valid
         let regex = try! NSRegularExpression(pattern: "^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$", options: .caseInsensitive)
-        return regex.firstMatch(in: testString, options: [], range: NSRange(location: 0, length: testString.count)) != nil
+        return regex.firstMatch(in: testString, options: [], range: NSRange(location: 0, length: testString.characters.count)) != nil
     }
 
     func isValid(name testString: String?) -> Bool {
         guard let realString: String = testString else { return false }
-        return realString.count >= 3 ? true : false
+        return realString.characters.count >= 3 ? true : false
     }
     func isValid(password testString: String?) -> Bool {
         guard let realString: String = testString else { return false }
