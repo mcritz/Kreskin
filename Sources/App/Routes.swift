@@ -15,7 +15,18 @@ extension Droplet {
         
         let predixController = PredictionController()
         let userController = UserController()
+        let webController = WebController(renderer: view)
 
+        get("/") { req in
+            return try webController.indexHandler(req)
+        }
+        get("index") { req in
+            return try webController.indexHandler(req)
+        }
+        get("index.html") { req in
+            return try webController.indexHandler(req)
+        }
+        
         // a simple json example response
         get("hello") { req in
             var json = JSON()
