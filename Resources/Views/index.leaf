@@ -7,9 +7,18 @@
 	<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
 </head>
 <body>
-<div class="container">
-	<h1>#(name)</h1>
-    <h2>Functioning</h2>
+<div class="container-fluid">
+  <h1>Kodename: Kreskin</h1>
+  <h2>Hello, #(name)</h2>
 </div>
+
+<div class="container-fluid">
+  #loop(predictions, "prediction") {
+    <div class="prediction">
+      <h3>#(prediction.name)</h3>
+    </div>
+  }
+</div>
+
 </body>
 </html>
