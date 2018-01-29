@@ -1,9 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Kreskin</title>
+    <meta charset="utf-8">
+	<title>Kreskin #(name)</title>
+	<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
 </head>
 <body>
-	<h1>It works!</h1>
+<div class="container">
+	<h1>#(name)</h1>
+    <h2>Functioning</h2>
+</div>
 </body>
 </html>
