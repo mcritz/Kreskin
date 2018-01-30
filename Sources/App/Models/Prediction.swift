@@ -96,6 +96,7 @@ extension Prediction: JSONConvertible {
 }
 
 extension Prediction: ResponseRepresentable { }
+extension Prediction: NodeRepresentable { }
 extension Prediction: Timestampable { }
 
 
