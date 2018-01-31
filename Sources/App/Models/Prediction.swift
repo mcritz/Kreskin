@@ -83,7 +83,8 @@ extension Prediction: JSONConvertible {
         try json.set("id", id)
         try json.set("title", title)
         try json.set("premise", premise)
-        try json.set("descriotion", description)
+        try json.set("isRevealed", isRevealed)
+        try json.set("description", description)
         if let updatedAt: Date = self.updatedAt {
             try json.set("updatedAt", updatedAt)
         }

@@ -15,14 +15,40 @@
 </div>
 
 <div id="predictions" class="container">
-    <div v-for="prediction in predictions" v-on:click="ping">
-        <h4>{{ prediction.title }}</h4>
-        <p>{{ prediction.premise }}</p>
-        <p>{{ prediction.description }}</p>
-    </div>
+    <prediction-comp 
+        v-for="prediction in predictions"
+        v-bind:prediction="prediction"
+        v-bind:key="prediction.id"
+        v-on:reveal="update(prediction)"
+    >
+    </prediction-comp>
 </div>
 
 <script>
+Vue.component('prediction-comp', {
+    props: ['prediction'],
+    template: 
+        '<div>\
+            <h4>{{ prediction.title }}</h4>\
+            <p>{{ prediction.premise }}</p>\
+            <p>{{ prediction.description }}</p>\
+            <button v-if="prediction.isRevealed == false" v-on:click="reveal">Show</button>\
+            <button v-if="prediction.isRevealed == true" v-on:click="hide">Hide</button>\
+        </div>',
+    methods: {
+        reveal: function(evt) {
+            this.prediction.title = "oh hai!";
+            this.prediction.isRevealed = true;
+            this.$emit('reveal');
+        },
+        hide: function(evt) {
+            this.prediction.title = "oh noes!";
+            this.prediction.isRevealed = false;
+            this.$emit('reveal');
+        }
+    }
+});
+
 var PredictionsView = new Vue({
     el: '\#predictions',
     data: {
@@ -30,28 +56,36 @@ var PredictionsView = new Vue({
     },
     mounted: function () {
         var self = this;
-        self.fetchDataAx();
+        self.fetchData();
     },
     methods: {
-        fetchDataAx: function() {
+        fetchData: function() {
             axios.get('/predictions').then(response => {
                 this.predictions = response.data;
+                console.log(response.data);
             });
         },
-        fetchDataJq: function() {
-            $.ajax({
-                url: '/predictions',
-                method: 'GET',
-                success: function (data) {
-                    self.predictions = data;
-                },
-                error: function (error) {
-                    console.log(error);
+        ping: function(param) {
+            console.log('clicked');
+        },
+        update: function(predix) {
+            var token = "Yx5tFfEgY9KAa+XklI1kFA==";
+            axios.put('/predictions/' + predix.id,
+            {
+                isRevealed: predix.isRevealed
+            },
+            {
+                headers: {
+                    'Authorization' : 'Bearer ' + token
                 }
+            })
+            .then(function (response) {
+                console.log(response.data);
+                predix = response.data;
+            })
+            .catch(function (error) {
+                console.log(error);
             });
-        },
-        ping: function() {
-            alert('hi there1');
         },
         reverseMessage: function () {
             this.message = this.message.split('').reverse().join('')
