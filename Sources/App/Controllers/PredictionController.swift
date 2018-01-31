@@ -80,6 +80,9 @@ final class PredictionController {
         } catch {
             throw Abort(.internalServerError)
         }
+        if !(predix.isRevealed) {
+            predix.description = "–"
+        }
         return predix
     }
     
