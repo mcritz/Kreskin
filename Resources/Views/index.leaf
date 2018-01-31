@@ -28,7 +28,7 @@
 Vue.component('prediction-comp', {
     props: ['prediction'],
     template: 
-        '<div>\
+        '<div v-model="prediction">\
             <h4>{{ prediction.title }}</h4>\
             <p>{{ prediction.premise }}</p>\
             <p>{{ prediction.description }}</p>\
@@ -37,12 +37,12 @@ Vue.component('prediction-comp', {
         </div>',
     methods: {
         reveal: function(evt) {
-            this.prediction.title = "oh hai!";
+            this.prediction.title = this.prediction.title + " (Updating)";
             this.prediction.isRevealed = true;
             this.$emit('reveal');
         },
         hide: function(evt) {
-            this.prediction.title = "oh noes!";
+            this.prediction.title = this.prediction.title + " (Updating)";
             this.prediction.isRevealed = false;
             this.$emit('reveal');
         }
@@ -62,13 +62,13 @@ var PredictionsView = new Vue({
         fetchData: function() {
             axios.get('/predictions').then(response => {
                 this.predictions = response.data;
-                console.log(response.data);
             });
         },
         ping: function(param) {
             console.log('clicked');
         },
         update: function(predix) {
+            var self = this;
             var token = "Yx5tFfEgY9KAa+XklI1kFA==";
             axios.put('/predictions/' + predix.id,
             {
@@ -80,11 +80,10 @@ var PredictionsView = new Vue({
                 }
             })
             .then(function (response) {
-                console.log(response.data);
-                predix = response.data;
+                self.fetchData();
             })
             .catch(function (error) {
-                console.log(error);
+                self.fetchData();
             });
         },
         reverseMessage: function () {
