@@ -23,7 +23,7 @@ Vue.component('prediction-comp', {
 });
 
 var PredictionsView = new Vue({
-    el: '\#predictions',
+    el: '#predictions',
     data: {
         predictions: []
     },
