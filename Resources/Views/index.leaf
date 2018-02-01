@@ -84,16 +84,32 @@ var LoginView = new Vue({
             console.log('password', this.user.password);
         },
         signup: function(evt) {
-            var self = this;
             axios.post('/users', {
                 email: this.user.email,
                 name: this.user.name,
                 password: this.user.password
             }).then(response => {
-                console.log('success', response);
-                this.isActive = false;
+                console.log('signup', response);
+                this.login();
             }).catch(error => {
                 console.log('fail', error);
+            });
+        },
+        login: function(evt) {
+            console.log('login', this.user);
+            axios({
+                method: 'post',
+                url: '/login',
+                auth: {
+                    username: this.user.email,
+                    password: this.user.password
+                }
+            }).then(response => {
+                console.log('login', response);
+                this.isActive = false;
+                window.localStorage.setItem('auth_token', response.data.token);
+            }).catch(error => {
+                console.log('failed login', error);
             });
         }
     }
