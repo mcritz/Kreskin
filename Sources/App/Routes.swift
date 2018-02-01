@@ -47,7 +47,7 @@ extension Droplet {
         post("users") { req in
             // require that the request body be json
             guard let json = req.json else {
-                throw Abort(.badRequest)
+                throw Abort(.badRequest, reason: "User creation requires a user in JSON format")
             }
 
             // initialize the name and email from
