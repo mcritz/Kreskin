@@ -42,7 +42,7 @@ var PredictionsView = new Vue({
         },
         update: function(predix) {
             var self = this;
-            var token = "Yx5tFfEgY9KAa+XklI1kFA==";
+            var token = window.localStorage.getItem('auth_token');
             axios.put('/predictions/' + predix.id,
             {
                 isRevealed: predix.isRevealed
