@@ -1,17 +1,53 @@
-var LoginView = new Vue({
-    el: '\#signup',
-    data: {
-        loginIsActive: false,
+var store = {
+    debug: true,
+    state: {
         user: {
             name: '',
             email: '',
             password: '',
-            authToken: ''
+            auth_token: ''
         }
     },
+    setMessageAction(newValue) {
+        if (this.debug) console.log('setMessageAction triggered with', newValue)
+        this.state.message = newValue
+    },
+    clearMessageAction() {
+        if (this.debug) console.log('clearMessageAction triggered')
+        this.state.message = ''
+    }
+}
+
+var GreetingView = new Vue({
+    el: '#greeting',
+    data: {
+        greeting: 'Welcome!',
+        user: store.state.user
+    },
     mounted: function() {
-        var self = this;
-        self.checkLogin();
+        this.updateGreeting();
+    },
+    methods: {
+        updateGreeting: function() {
+            console.log('updateGreeting', this.user);
+            var self = this;
+            if (this.user.name) {
+                self.greeting = "Welcome, " + this.user.name;
+            } else {
+                self.greeting = "Hi there!";
+            }
+        }
+    }
+});
+
+var LoginView = new Vue({
+    el: '#signup',
+    data: {
+        loginIsActive: false,
+        user: store.state.user
+    },
+    mounted: function() {
+        this.checkLogin();
     },
     methods: {
         ping: function(evt) {
@@ -44,22 +80,28 @@ var LoginView = new Vue({
             }).then(response => {
                 console.log('login', response);
                 this.loginIsActive = false;
-                window.localStorage.setItem('user_email', this.user.email);
-                window.localStorage.setItem('auth_token', response.data.token);
+                let localStore = window.localStorage;
+                localStore.setItem('user_name', this.user.name);
+                localStore.setItem('user_email', this.user.email);
+                localStore.setItem('auth_token', response.data.token);
+                this.user.auth_token = response.data.token;
+                GreetingView.updateGreeting();
             }).catch(error => {
                 console.log('failed login', error);
             });
         },
         checkLogin: function() {
-            var storedEmail = window.localStorage.getItem('user_email');
-            var storedAuthToken = window.localStorage.getItem('auth_token');
-            var storedUserID = window.localStorage.getItem('user_id');
+            let localStore = window.localStorage;
+            var storedUserName = localStore.getItem('user_name');
+            var storedEmail = localStore.getItem('user_email');
+            var storedAuthToken = localStore.getItem('auth_token');
             if (!!storedEmail 
                 && !!storedAuthToken
-                && !!storedUserID) {
-                this.user.authToken = storedAuthToken;
+                && !!storedUserName) {
+                this.user.name = storedUserName;
+                this.user.auth_token = storedAuthToken;
                 this.user.email = storedEmail;
-                this.user.id = storedId;
+                GreetingView.updateGreeting();
             } else {
                 this.loginIsActive = true;
             }
