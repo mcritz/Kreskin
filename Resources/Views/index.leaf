@@ -9,10 +9,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.13/vue.min.js"></script>
 </head>
 <body>
-<header class="container">
+
+<div id="greeting" class="container">
 	<h1>KRZKN</h1>
-    <h2>Hello, #(name)</h2>
-</header>
+    <h2>{{greeting}}</h2>
+</div>
 
 <section id="signup" class="container" v-model="user" v-if="loginIsActive">
     <div class="row col-3">
