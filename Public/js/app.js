@@ -8,6 +8,14 @@ var store = {
             auth_token: ''
         }
     },
+    destroyUser() {
+        let userKeys = Object.keys(this.state.user);
+        for (tt = 0; tt < userKeys.length; tt++) {
+            let thisKey = userKeys[tt];
+            this.state.user.thisKey = '';
+        }
+        GreetingView.updateGreeting;
+    },
     setMessageAction(newValue) {
         if (this.debug) console.log('setMessageAction triggered with', newValue)
         this.state.message = newValue
@@ -25,13 +33,15 @@ var GreetingView = new Vue({
         user: store.state.user
     },
     mounted: function() {
+        console.log('greetingview', this.user);
         this.updateGreeting();
     },
     methods: {
         updateGreeting: function() {
             console.log('updateGreeting', this.user);
             var self = this;
-            if (this.user.name) {
+            if (!!this.user
+                && !!this.user.name) {
                 self.greeting = "Welcome, " + this.user.name;
             } else {
                 self.greeting = "Hi there!";
@@ -40,10 +50,11 @@ var GreetingView = new Vue({
     }
 });
 
-var LoginView = new Vue({
-    el: '#signup',
+var AccountView = new Vue({
+    el: '#account',
     data: {
         loginIsActive: false,
+        store: store,
         user: store.state.user
     },
     mounted: function() {
@@ -55,6 +66,29 @@ var LoginView = new Vue({
             console.log('name', this.user.name);
             console.log('email', this.user.email);
             console.log('password', this.user.password);
+        },
+        logout: function(evt) {
+            // this.store.destroyUser();
+            axios.post('/logout', {
+
+            }).then(response => {
+                console.log('logout', response);
+                let localStore = window.localStorage;
+                localStore.removeItem('user_name');
+                localStore.removeItem('user_email');
+                localStore.removeItem('auth_token');
+
+                let userKeys = Object.keys(this.user);
+                for (tt = 0; tt < userKeys.length; tt++) {
+                    let thisKey = userKeys[tt];
+                    this.user[thisKey] = '';
+                }
+
+                GreetingView.updateGreeting();
+                this.loginIsActive = true;
+            }).catch(error => {
+                console.log('logout fail', error);
+            });
         },
         signup: function(evt) {
             axios.post('/users', {

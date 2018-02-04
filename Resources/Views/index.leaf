@@ -15,8 +15,11 @@
     <h2>{{greeting}}</h2>
 </div>
 
-<section id="signup" class="container" v-model="user" v-if="loginIsActive">
-    <div class="row col-3">
+<section id="account" class="container" v-model="user">
+    <div class="row col-3" v-if="loginIsActive == false">
+        <button class="btn" v-on:click="logout()">Sign Out</button>
+    </div>
+    <div class="row col-3" v-if="loginIsActive">
         <h3>Sign Up</h3>
         <div class="form-group">
             <label for="name">Your name</label>
