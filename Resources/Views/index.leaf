@@ -16,7 +16,7 @@
 </div>
 
 <section id="signup" class="container" v-model="user" v-if="loginIsActive">
-    <div class="row col-3">
+    <div class="row">
         <h3>Sign Up</h3>
         <div class="form-group">
             <label for="name">Your name</label>
@@ -62,6 +62,33 @@
             >
         </div>
     </div>
+</section>
+
+<section id="prediction" v-model="prediction" class="row">
+  <div class="input-group">
+    <label for="predix-title">Topic</label>
+    <input type="text" 
+      id="predix-title"
+      class="form-control"
+      v-model="prediction.title"
+       />
+  </div>
+  <div class="input-group">
+    <label for="predix-premise">I predict…</label>
+    <input 
+      type="text" 
+      class="form-control" 
+      v-model="prediction.premise"
+    />
+  </div>
+  <div class="input-group">
+    <label for="predix-description">Details</label>
+    <textarea
+      class="form-control" 
+      v-model="prediction.description"
+    ></textarea>
+  </div>
+  <input type="submit" class="brn btn-primary" value="Submit Presiction" v-on:click="submitPrediction()" />
 </section>
 
 <section id="predictions" class="container">
