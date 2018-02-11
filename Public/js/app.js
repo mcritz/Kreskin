@@ -6,6 +6,11 @@ var store = {
             email: '',
             password: '',
             auth_token: ''
+        },
+        prediction: {
+            title: 'prediction title',
+            premise: 'Premise',
+            description: 'Description'
         }
     },
     destroyUser() {
@@ -25,6 +30,44 @@ var store = {
         this.state.message = ''
     }
 }
+
+var NewPrediction = new Vue({
+    el: '#newprediction',
+    data: {
+        prediction: store.state.prediction,
+        user: store.state.user
+    },
+    mounted: function() {
+        console.log('NewPrediction mounted', this.user);
+    },
+    methods: {
+        submitPrediction: function() {
+            console.log('submitPrediction', this.prediction);
+            axios({
+                method: 'post',
+                url: '/predictions',
+                headers: {
+                    Authorization: 'Bearer ' + this.user.auth_token
+                }, 
+                data: {
+                    title: this.prediction.title,
+                    premise: this.prediction.premise,
+                    description: this.prediction.description
+                }
+            }).then(response => {
+                console.log('submitPrediction', response);
+                this.prediction = {
+                    title : '',
+                    premise: '',
+                    description: ''
+                };
+                PredictionsView.fetchData();
+            }).catch(error => {
+                console.log('fail: submitPrediction', error);
+            });
+        }
+    }
+});
 
 var GreetingView = new Vue({
     el: '#greeting',
