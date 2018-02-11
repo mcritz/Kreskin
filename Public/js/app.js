@@ -6,6 +6,11 @@ var store = {
             email: '',
             password: '',
             auth_token: ''
+        },
+        prediction: {
+            title: 'prediction title',
+            premise: 'Premise',
+            description: 'Description'
         }
     },
     setMessageAction(newValue) {
@@ -17,6 +22,21 @@ var store = {
         this.state.message = ''
     }
 }
+
+var NewPrediction = new Vue({
+    el: '#newprediction',
+    data: {
+        prediction: store.state.prediction
+    },
+    mounted: function() {
+        console.log('NewPrediction mounted');
+    },
+    methods: {
+        submitPrediction: function() {
+            console.log('submitPrediction', this.prediction);
+        }
+    }
+});
 
 var GreetingView = new Vue({
     el: '#greeting',
