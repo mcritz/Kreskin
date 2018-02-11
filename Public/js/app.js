@@ -26,14 +26,37 @@ var store = {
 var NewPrediction = new Vue({
     el: '#newprediction',
     data: {
-        prediction: store.state.prediction
+        prediction: store.state.prediction,
+        user: store.state.user
     },
     mounted: function() {
-        console.log('NewPrediction mounted');
+        console.log('NewPrediction mounted', this.user);
     },
     methods: {
         submitPrediction: function() {
             console.log('submitPrediction', this.prediction);
+            axios({
+                method: 'post',
+                url: '/predictions',
+                headers: {
+                    Authorization: 'Bearer ' + this.user.auth_token
+                }, 
+                data: {
+                    title: this.prediction.title,
+                    premise: this.prediction.premise,
+                    description: this.prediction.description
+                }
+            }).then(response => {
+                console.log('submitPrediction', response);
+                this.prediction = {
+                    title : '',
+                    premise: '',
+                    description: ''
+                };
+                PredictionsView.fetchData();
+            }).catch(error => {
+                console.log('fail: submitPrediction', error);
+            });
         }
     }
 });
