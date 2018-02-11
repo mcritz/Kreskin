@@ -16,8 +16,8 @@
 </div>
 
 <section id="signup" class="container" v-model="user" v-if="loginIsActive">
+  <h3>Sign Up</h3>
     <div class="row">
-        <h3>Sign Up</h3>
         <div class="form-group">
             <label for="name">Your name</label>
             <input id="name" 
@@ -29,7 +29,8 @@
                 required
             >
         </div>
-
+    </div>
+    <div class="row">
         <div class="form-group">
             <label for="email">Email</label>
             <input id="email" 
@@ -41,7 +42,8 @@
                 required
             >
         </div>
-        
+    </div>
+    <div class="row">
         <div class="form-group">
             <label for="password">Password</label>
             <input id="password" 
@@ -52,7 +54,8 @@
                 required
             >
         </div>
-
+	</div>
+	<div class="row">
         <div class="form-group">
             <input id="signup-btn"
                 type="submit" 
@@ -64,8 +67,9 @@
     </div>
 </section>
 
-<section id="prediction" v-model="prediction" class="row">
-  <div class="input-group">
+<section id="prediction" v-model="prediction" class="container">
+	<div class="row">
+  <div class="form-group">
     <label for="predix-title">Topic</label>
     <input type="text" 
       id="predix-title"
@@ -73,7 +77,9 @@
       v-model="prediction.title"
        />
   </div>
-  <div class="input-group">
+</div>
+<div class="row">
+  <div class="form-group">
     <label for="predix-premise">I predict…</label>
     <input 
       type="text" 
@@ -81,14 +87,19 @@
       v-model="prediction.premise"
     />
   </div>
-  <div class="input-group">
+</div>
+<div class="row">
+  <div class="form-group">
     <label for="predix-description">Details</label>
     <textarea
       class="form-control" 
       v-model="prediction.description"
     ></textarea>
   </div>
-  <input type="submit" class="brn btn-primary" value="Submit Presiction" v-on:click="submitPrediction()" />
+</div>
+<div class="row">
+  <input type="submit" class="btn btn-primary" value="Submit Presiction" v-on:click="submitPrediction()" />
+</div>
 </section>
 
 <section id="predictions" class="container">
