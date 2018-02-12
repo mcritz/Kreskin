@@ -116,7 +116,7 @@ final class PredictionController {
         predix.sort(by: { (A, B) -> Bool in
             if let aCreatedDate: Date = A.createdAt,
                 let bCreatedDate: Date = B.createdAt {
-                return aCreatedDate < bCreatedDate
+                return aCreatedDate > bCreatedDate
             }
             return false
         })

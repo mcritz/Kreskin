@@ -221,17 +221,13 @@ var PredictionsView = new Vue({
         predictions: []
     },
     mounted: function () {
-        var self = this;
-        self.fetchData();
+        this.fetchData();
     },
     methods: {
         fetchData: function() {
             axios.get('/predictions').then(response => {
                 this.predictions = response.data;
             });
-        },
-        ping: function(param) {
-            console.log('clicked');
         },
         update: function(predix) {
             var self = this;
