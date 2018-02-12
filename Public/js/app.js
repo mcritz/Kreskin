@@ -116,10 +116,10 @@ var AccountView = new Vue({
 
             }).then(response => {
                 console.log('logout', response);
-                let localStore = window.localStorage;
-                localStore.removeItem('user_name');
-                localStore.removeItem('user_email');
-                localStore.removeItem('auth_token');
+                let sessionStore = window.sessionStorage;
+                sessionStore.removeItem('user_name');
+                sessionStore.removeItem('user_email');
+                sessionStore.removeItem('auth_token');
 
                 let userKeys = Object.keys(this.user);
                 for (tt = 0; tt < userKeys.length; tt++) {
@@ -157,10 +157,10 @@ var AccountView = new Vue({
             }).then(response => {
                 console.log('login', response);
                 this.loginIsActive = false;
-                let localStore = window.localStorage;
-                localStore.setItem('user_name', this.user.name);
-                localStore.setItem('user_email', this.user.email);
-                localStore.setItem('auth_token', response.data.token);
+                let sessionStore = window.sessionStorage;
+                sessionStore.setItem('user_name', this.user.name);
+                sessionStore.setItem('user_email', this.user.email);
+                sessionStore.setItem('auth_token', response.data.token);
                 this.user.auth_token = response.data.token;
                 GreetingView.updateGreeting();
             }).catch(error => {
@@ -168,10 +168,10 @@ var AccountView = new Vue({
             });
         },
         checkLogin: function() {
-            let localStore = window.localStorage;
-            var storedUserName = localStore.getItem('user_name');
-            var storedEmail = localStore.getItem('user_email');
-            var storedAuthToken = localStore.getItem('auth_token');
+            let sessionStore = window.sessionStorage;
+            var storedUserName = sessionStore.getItem('user_name');
+            var storedEmail = sessionStore.getItem('user_email');
+            var storedAuthToken = sessionStore.getItem('auth_token');
             if (!!storedEmail 
                 && !!storedAuthToken
                 && !!storedUserName) {
@@ -235,7 +235,7 @@ var PredictionsView = new Vue({
         },
         update: function(predix) {
             var self = this;
-            var token = window.localStorage.getItem('auth_token');
+            var token = window.sessionStorage.getItem('auth_token');
             axios.put('/predictions/' + predix.id,
             {
                 isRevealed: predix.isRevealed
