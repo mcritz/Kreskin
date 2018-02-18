@@ -8,26 +8,19 @@ var store = {
             auth_token: ''
         },
         prediction: {
-            title: 'prediction title',
+            title: 'Title',
             premise: 'Premise',
             description: 'Description'
         }
     },
     destroyUser() {
+      var self = this;
         let userKeys = Object.keys(this.state.user);
         for (tt = 0; tt < userKeys.length; tt++) {
             let thisKey = userKeys[tt];
-            this.state.user.thisKey = '';
+            self.state.user.thisKey = '';
         }
         GreetingView.updateGreeting;
-    },
-    setMessageAction(newValue) {
-        if (this.debug) console.log('setMessageAction triggered with', newValue)
-        this.state.message = newValue
-    },
-    clearMessageAction() {
-        if (this.debug) console.log('clearMessageAction triggered')
-        this.state.message = ''
     }
 }
 
@@ -36,9 +29,6 @@ var NewPrediction = new Vue({
     data: {
         prediction: store.state.prediction,
         user: store.state.user
-    },
-    mounted: function() {
-        console.log('NewPrediction mounted', this.user);
     },
     methods: {
         submitPrediction: function() {
@@ -85,7 +75,7 @@ var GreetingView = new Vue({
             var self = this;
             if (!!this.user
                 && !!this.user.name) {
-                self.greeting = "Welcome, " + this.user.name;
+                self.greeting = "Welcome, " + this.user.name + "!";
             } else {
                 self.greeting = "Hi there!";
             }
@@ -247,9 +237,6 @@ var PredictionsView = new Vue({
             .catch(function (error) {
                 self.fetchData();
             });
-        },
-        reverseMessage: function () {
-            this.message = this.message.split('').reverse().join('')
         }
     }
 });
