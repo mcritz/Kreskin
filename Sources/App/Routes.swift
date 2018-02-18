@@ -130,7 +130,8 @@ extension Droplet {
             let user = try req.user()
             let token = try Token.generate(for: user)
             try token.save()
-            return token
+            let response = Node(user, token)
+            return response
         }
     }
 
