@@ -10,10 +10,24 @@
 </head>
 <body>
 
-	<div id="greeting" class="container">
-		<h1>KRZKN</h1>
-		<h2>{{greeting}}</h2>
-	</div>
+<section id="notifications" style="position: fixed; width: 100vw; -webkit-backdrop-filter: blur(10px) brightness(95%); background: rgba(255,255,255, 0.8);">
+	<notification-comp 
+		v-for="(notice, index) in notifications"
+		v-bind:notice="notice"
+		v-bind:key="notice.message"
+		v-on:dismiss="notifications.splice(index, 1)"
+    v-bind:class="{ 
+      'alert-danger': notice.type == 'error',
+      'alert-success': notice.type == 'success'
+     }"
+		>
+	</notification-comp>
+</section>
+
+<div id="greeting" class="container">
+	<h1>KRZKN</h1>
+	<h2>{{greeting}}</h2>
+</div>
 
 <section id="account" class="container" v-model="user">
     <div class="row" v-if="loginIsActive == false">
@@ -69,46 +83,47 @@
 				>
 			</div>
 		</div>
-	</section>
+	</div>
+</section>
 
-	<section id="newprediction" v-model="prediction" class="container">
-		<h3>My Prediction</h3>
-		<div class="row">
-			<div class="form-group">
-				<label for="predix-title">Topic</label>
-				<input type="text" 
-				id="predix-title"
-				class="form-control"
-				v-model="prediction.title"
-				/>
-			</div>
+<section id="newprediction" v-model="prediction" class="container" v-if="session.isActive == true">
+	<h3>My Prediction</h3>
+	<div class="row">
+		<div class="form-group">
+			<label for="predix-title">Topic</label>
+			<input type="text" 
+			id="predix-title"
+			class="form-control"
+			v-model="prediction.title"
+			/>
 		</div>
-		<div class="row">
-			<div class="form-group">
-				<label for="predix-premise">I predict…</label>
-				<input 
-				type="text" 
-				class="form-control" 
-				v-model="prediction.premise"
-				/>
-			</div>
+	</div>
+	<div class="row">
+		<div class="form-group">
+			<label for="predix-premise">I predict…</label>
+			<input 
+			type="text" 
+			class="form-control" 
+			v-model="prediction.premise"
+			/>
 		</div>
-		<div class="row">
-			<div class="form-group">
-				<label for="predix-description">Details</label>
-				<textarea
-				class="form-control" 
-				v-model="prediction.description"
-				></textarea>
-			</div>
+	</div>
+	<div class="row">
+		<div class="form-group">
+			<label for="predix-description">Details</label>
+			<textarea
+			class="form-control" 
+			v-model="prediction.description"
+			></textarea>
 		</div>
-		<div class="row">
-			<input type="submit" class="btn btn-primary" value="Submit Presiction" v-on:click="submitPrediction()" />
-		</div>
-	</section>
+	</div>
+	<div class="row">
+		<input type="submit" class="btn btn-primary" value="Submit Presiction" v-on:click="submitPrediction()" />
+	</div>
+</section>
 
-	<section id="predictions" class="container">
-		<prediction-comp 
+<section id="predictions" class="container">
+	<prediction-comp 
 		v-for="prediction in predictions"
 		v-bind:prediction="prediction"
 		v-bind:key="prediction.id"
