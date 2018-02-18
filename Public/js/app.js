@@ -1,6 +1,9 @@
 var store = {
     debug: true,
     state: {
+        session: {
+            isActive: false
+        },
         user: {
             name: '',
             email: '',
@@ -28,7 +31,8 @@ var NewPrediction = new Vue({
     el: '#newprediction',
     data: {
         prediction: store.state.prediction,
-        user: store.state.user
+        user: store.state.user,
+        session: store.state.session
     },
     methods: {
         submitPrediction: function() {
@@ -52,8 +56,16 @@ var NewPrediction = new Vue({
                     description: ''
                 };
                 PredictionsView.fetchData();
+                NotificationsView.notifications.push({
+                    message: 'Success: Prediction created',
+                    type: 'success'
+                });
             }).catch(error => {
                 console.log('fail: submitPrediction', error);
+                NotificationsView.notifications.push({
+                    message: 'Error: Prediction failed',
+                    type: 'error'
+                });
             });
         }
     }
@@ -88,7 +100,8 @@ var AccountView = new Vue({
     data: {
         loginIsActive: false,
         store: store,
-        user: store.state.user
+        user: store.state.user,
+        session: store.state.session
     },
     mounted: function() {
         this.checkLogin();
@@ -119,7 +132,16 @@ var AccountView = new Vue({
 
                 GreetingView.updateGreeting();
                 this.loginIsActive = true;
+                NotificationsView.notifications.push({
+                    message: 'Success: Logged out',
+                    type: 'success'
+                });
+                this.session.isActive = false;
             }).catch(error => {
+                NotificationsView.notifications.push({
+                    message: 'Error: Logout failed',
+                    type: 'error'
+                });
                 console.log('logout fail', error);
             });
         },
@@ -152,7 +174,15 @@ var AccountView = new Vue({
                 sessionStore.setItem('user_email', this.user.email);
                 sessionStore.setItem('auth_token', response.data.token);
                 this.user.auth_token = response.data.token;
+
+                this.session.isActive = true;
+
                 GreetingView.updateGreeting();
+
+                NotificationsView.notifications.push({
+                    message: 'Login success',
+                    type: 'success'
+                });
             }).catch(error => {
                 console.log('failed login', error);
             });
@@ -168,7 +198,10 @@ var AccountView = new Vue({
                 this.user.name = storedUserName;
                 this.user.auth_token = storedAuthToken;
                 this.user.email = storedEmail;
+
                 GreetingView.updateGreeting();
+
+                this.session.isActive = true;
             } else {
                 this.loginIsActive = true;
             }
@@ -190,7 +223,7 @@ Vue.component('prediction-comp', {
         </div>',
     methods: {
         isOwner: function() {
-            return false;
+            return true;
         },
         reveal: function(evt) {
             this.prediction.title = this.prediction.title + " (Updating)";
@@ -236,7 +269,63 @@ var PredictionsView = new Vue({
             })
             .catch(function (error) {
                 self.fetchData();
+
+                var reason = 'Error: Couldn’t update notification. ';
+                NotificationsView.notifications.push({
+                    message: reason,
+                    type: 'error'
+                });
             });
+        }
+    }
+});
+
+var NotificationsView = new Vue({
+    el: '#notifications',
+    data: {
+        notifications: []
+    },
+    mounted: function () {
+    },
+    methods: {
+        notifications: function(options) {
+            console.log('addNotification', options);
+            var message,
+                kind, 
+                oid = this.notifications.length;
+            if (!!options.message) {
+                messages = options.message;
+            }
+            if (!!options.kind) {
+                kind = options.kind;
+            }
+            this.notifications.push({
+                id: oid,
+                kind: kind,
+                message: message
+            });
+        }
+    },
+    watch: {
+        // todo: something about id
+        // notifications: function(thing) {
+        //     thing.id = notifications[notifications.length].id++
+        // }
+    }
+});
+
+Vue.component('notification-comp', {
+    props: ['notice'],
+    template:
+        '<div class="alert" role="alert" v-model="notice">\
+            {{ notice.message }}\
+            <button type="button" class="close" aria-label="Close" v-on:click="handleClose">\
+                <span aria-hidden="true">&times;</span>\
+            </button>\
+        </div>',
+    methods: {
+        handleClose: function(notice) {
+            this.$emit('dismiss');
         }
     }
 });
