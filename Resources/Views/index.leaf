@@ -126,6 +126,7 @@
 	<prediction-comp 
 		v-for="prediction in predictions"
 		v-bind:prediction="prediction"
+        v-bind:user="user"
 		v-bind:key="prediction.id"
 		v-on:reveal="update(prediction)"
 		>
