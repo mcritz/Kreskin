@@ -158,7 +158,7 @@ var AccountView = new Vue({
             });
         },
         login: function(evt) {
-            console.log('login', this.user);
+            console.log('sending login', this.user);
             axios({
                 method: 'post',
                 url: '/login',
@@ -173,7 +173,10 @@ var AccountView = new Vue({
                 sessionStore.setItem('user_name', this.user.name);
                 sessionStore.setItem('user_email', this.user.email);
                 sessionStore.setItem('auth_token', response.data.token);
+                sessionStore.setItem('user_id', response.data.user_id);
+
                 this.user.auth_token = response.data.token;
+                this.user.user_id = response.data.user_id;
 
                 this.session.isActive = true;
 
