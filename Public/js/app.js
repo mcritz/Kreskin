@@ -12,9 +12,9 @@ var store = {
             user_id: null
         },
         prediction: {
-            title: 'Title',
-            premise: 'Premise',
-            description: 'Description'
+            title: '',
+            premise: '',
+            description: ''
         }
     },
     destroyUser() {
@@ -152,10 +152,12 @@ var AccountView = new Vue({
                 name: this.user.name,
                 password: this.user.password
             }).then(response => {
-                console.log('signup', response);
                 this.login();
             }).catch(error => {
-                console.log('fail', error);
+                NotificationsView.notifications.push({
+                    message: error.response.data.reason,
+                    type: 'error'
+                });
             });
         },
         login: function(evt) {

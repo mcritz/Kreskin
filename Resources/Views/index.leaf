@@ -30,10 +30,10 @@
 </div>
 
 <section id="account" class="container" v-model="user">
-    <div class="row" v-if="loginIsActive == false">
+    <div class="col" v-if="loginIsActive == false">
         <button class="btn" v-on:click="logout()">Sign Out</button>
     </div>
-    <div v-if="loginIsActive">
+    <div v-if="loginIsActive" class="col">
 		<h3>Sign Up</h3>
 		<div class="row">
 			<div class="form-group">
@@ -86,9 +86,9 @@
 	</div>
 </section>
 
-<section id="newprediction" v-model="prediction" class="container" v-if="session.isActive == true">
+<form id="newprediction" v-model="prediction" class="container" v-if="session.isActive == true">
 	<h3>My Prediction</h3>
-	<div class="row">
+	<div class="col">
 		<div class="form-group">
 			<label for="predix-title">Topic</label>
 			<input type="text" 
@@ -98,7 +98,7 @@
 			/>
 		</div>
 	</div>
-	<div class="row">
+	<div class="col">
 		<div class="form-group">
 			<label for="predix-premise">I predict…</label>
 			<input 
@@ -108,7 +108,7 @@
 			/>
 		</div>
 	</div>
-	<div class="row">
+	<div class="col">
 		<div class="form-group">
 			<label for="predix-description">Details</label>
 			<textarea
@@ -117,10 +117,10 @@
 			></textarea>
 		</div>
 	</div>
-	<div class="row">
+	<div class="col">
 		<input type="submit" class="btn btn-primary" value="Submit Presiction" v-on:click="submitPrediction()" />
 	</div>
-</section>
+</form>
 
 <section id="predictions" class="container">
 	<prediction-comp 
