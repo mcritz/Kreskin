@@ -8,7 +8,8 @@ var store = {
             name: '',
             email: '',
             password: '',
-            auth_token: ''
+            auth_token: '',
+            user_id: null
         },
         prediction: {
             title: 'Title',
@@ -176,7 +177,7 @@ var AccountView = new Vue({
                 sessionStore.setItem('user_id', response.data.user_id);
 
                 this.user.auth_token = response.data.token;
-                this.user.user_id = response.data.user_id;
+                this.user.user_id = response.data.userID;
 
                 this.session.isActive = true;
 
@@ -195,12 +196,15 @@ var AccountView = new Vue({
             var storedUserName = sessionStore.getItem('user_name');
             var storedEmail = sessionStore.getItem('user_email');
             var storedAuthToken = sessionStore.getItem('auth_token');
+            var storedUserID = sessionStore.getItem('user_id');
             if (!!storedEmail 
                 && !!storedAuthToken
-                && !!storedUserName) {
+                && !!storedUserName
+                && !!storedUserID) {
                 this.user.name = storedUserName;
                 this.user.auth_token = storedAuthToken;
                 this.user.email = storedEmail;
+                this.user.user_id = storedUserID;
 
                 GreetingView.updateGreeting();
 
@@ -213,7 +217,10 @@ var AccountView = new Vue({
 });
 
 Vue.component('prediction-comp', {
-    props: ['prediction'],
+    props: [
+        'prediction',
+        'user'
+    ],
     template: 
         '<div v-model="prediction">\
             <h4>{{ prediction.title }}</h4>\
@@ -226,7 +233,7 @@ Vue.component('prediction-comp', {
         </div>',
     methods: {
         isOwner: function() {
-            return true;
+            return this.user.user_id == this.prediction.userId;
         },
         reveal: function(evt) {
             this.prediction.title = this.prediction.title + " (Updating)";
@@ -244,10 +251,12 @@ Vue.component('prediction-comp', {
 var PredictionsView = new Vue({
     el: '#predictions',
     data: {
-        predictions: []
+        predictions: [],
+        user: store.state.user
     },
     mounted: function () {
         this.fetchData();
+        this.user = store.state.user;
     },
     methods: {
         fetchData: function() {
