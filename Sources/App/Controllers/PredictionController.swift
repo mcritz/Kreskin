@@ -23,7 +23,7 @@ final class PredictionController {
         do {
             let user = try req.user()
             let userId = user.id
-            try json.set("userId", userId)
+            try json.set("user_id", userId)
             prediction = try Prediction(json: json)
             try prediction.save()
         } catch {

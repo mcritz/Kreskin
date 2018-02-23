@@ -69,7 +69,7 @@ extension Prediction: Preparation {
 
 extension Prediction: JSONConvertible {
     convenience init(json: JSON) throws {
-        let userId: Int = try json.get("userId")
+        let userId: Int = try json.get("user_id")
         try self.init(
             title: json.get("title"),
             premise: json.get("premise"),
@@ -91,7 +91,7 @@ extension Prediction: JSONConvertible {
         if let createdAt: Date = self.createdAt {
             try json.set("createdAt", createdAt)
         }
-        try json.set("userId", userId)
+        try json.set("user_id", userId)
         return json
     }
 }
