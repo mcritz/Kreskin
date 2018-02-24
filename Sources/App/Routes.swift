@@ -20,6 +20,9 @@ extension Droplet {
         get("/") { req in
             return try webController.indexHandler(req)
         }
+        get("/healthcheck") { req in
+            throw Abort(.ok)
+        }
         get("index") { req in
             return try webController.indexHandler(req)
         }
