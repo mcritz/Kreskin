@@ -4,9 +4,9 @@
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 	<title>Kreskin</title>
-	<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.17.1/axios.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.13/vue.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="vendor/bootstrap/bootstrap.min.css">
+	<script src="vendor/axios/axios.min.js"></script>
+	<script src="vendor/vuejs/vue.min.js"></script>
 </head>
 <body>
 
