@@ -190,6 +190,10 @@ var AccountView = new Vue({
                     type: 'success'
                 });
             }).catch(error => {
+                NotificationsView.notifications.push({
+                    message: error.response.data.reason,
+                    type: "error"
+                });
                 console.log('failed login', error);
             });
         },

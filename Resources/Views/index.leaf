@@ -14,8 +14,9 @@
 </head>
 <body>
 
-<section id="notifications" style="position: fixed; width: 100vw; -webkit-backdrop-filter: blur(10px) brightness(95%); background: rgba(255,255,255, 0.8);">
+<section id="notifications" style="position: fixed; width: 100vw; z-index: 999999;">
 	<notification-comp 
+        style="-webkit-backdrop-filter: blur(10px) brightness(90%);"
 		v-for="(notice, index) in notifications"
 		v-bind:notice="notice"
 		v-bind:key="notice.message"
@@ -88,6 +89,44 @@
 			</div>
 		</div>
 	</div>
+    <div id="login" v-if="loginIsActive">
+        <h3>Login</h3>
+        <div class="row">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input id="email" 
+                type="email" 
+                name="email" 
+                class="form-control" 
+                placeholder="email"
+                v-model="user.email"
+                required
+                >
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input id="password" 
+                type="password" 
+                class="form-control" 
+                name="password"
+                v-model="user.password"
+                required
+                >
+            </div>
+        </div>
+        <div class="row">
+            <div class="form-group">
+                <input id="signup-btn"
+                type="submit" 
+                class="btn btn-primary" 
+                value="Log In"
+                v-on:click="login()"
+                >
+            </div>
+        </div>
+    </div>
 </section>
 
 <form id="newprediction" v-model="prediction" class="container" v-if="session.isActive == true">
