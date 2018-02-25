@@ -5,8 +5,12 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 	<title>Kreskin</title>
 	<link rel="stylesheet" type="text/css" href="vendor/bootstrap/bootstrap.min.css">
-	<script src="vendor/axios/axios.min.js"></script>
-	<script src="vendor/vuejs/vue.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.17.1/axios.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.13/vue.min.js"></script>
+    <script>
+        window.axios || document.write('<script src="vendor/axios/axios.min.js">\x3C/script>');
+        window.Vue || document.write('<script src="vendor/vuejs/vue.min.js">\x3C/script>');
+    </script>
 </head>
 <body>
 
