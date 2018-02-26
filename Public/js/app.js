@@ -173,13 +173,11 @@ var AccountView = new Vue({
                 console.log('login', response);
                 this.loginIsActive = false;
                 let sessionStore = window.sessionStorage;
+                this.user = response.data;
                 sessionStore.setItem('user_name', this.user.name);
                 sessionStore.setItem('user_email', this.user.email);
                 sessionStore.setItem('auth_token', response.data.token);
                 sessionStore.setItem('user_id', response.data.user_id);
-
-                this.user.auth_token = response.data.token;
-                this.user.user_id = response.data.userID;
 
                 this.session.isActive = true;
 
