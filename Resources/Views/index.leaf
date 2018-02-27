@@ -89,7 +89,7 @@
 			</div>
 		</div>
 	</div>
-    <div id="login" v-if="loginIsActive">
+    <div id="login" v-if="loginIsActive" class="col">
         <h3>Login</h3>
         <div class="row">
             <div class="form-group">
