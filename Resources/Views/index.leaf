@@ -35,103 +35,90 @@
 </div>
 
 <section id="account" class="container" v-model="user">
+  <div class="row">
     <div class="col" v-if="loginIsActive == false">
         <button class="btn" v-on:click="logout()">Sign Out</button>
     </div>
     <div v-if="loginIsActive" class="col">
 		<h3>Sign Up</h3>
-		<div class="row">
-			<div class="form-group">
-				<label for="name">Your name</label>
-				<input id="name" 
-				type="text" 
-				name="name" 
-				class="form-control" 
-				placeholder="Your name"
-				v-model="user.name"
-				required
-				>
-			</div>
+		<div class="form-group">
+			<label for="name">Your name</label>
+			<input id="name" 
+			type="text" 
+			name="name" 
+			class="form-control" 
+			placeholder="Your name"
+			v-model="user.name"
+			required
+			>
 		</div>
-		<div class="row">
-			<div class="form-group">
-				<label for="email">Email</label>
-				<input id="email" 
-				type="email" 
-				name="email" 
-				class="form-control" 
-				placeholder="email"
-				v-model="user.email"
-				required
-				>
-			</div>
+		<div class="form-group">
+			<label for="email">Email</label>
+			<input id="email" 
+			type="email" 
+			name="email" 
+			class="form-control" 
+			placeholder="email"
+			v-model="user.email"
+			required
+			>
 		</div>
-		<div class="row">
-			<div class="form-group">
-				<label for="password">Password</label>
-				<input id="password" 
-				type="password" 
-				class="form-control" 
-				name="password"
-				v-model="user.password"
-				required
-				>
-			</div>
+		<div class="form-group">
+			<label for="password">Password</label>
+			<input id="password" 
+			type="password" 
+			class="form-control" 
+			name="password"
+			v-model="user.password"
+			required
+			>
 		</div>
-		<div class="row">
-			<div class="form-group">
-				<input id="signup-btn"
-				type="submit" 
-				class="btn btn-primary" 
-				value="Sign Up"
-				v-on:click="signup()"
-				>
-			</div>
+		<div class="form-group">
+			<input id="signup-btn"
+			type="submit" 
+			class="btn btn-primary" 
+			value="Sign Up"
+			v-on:click="signup()"
+			>
 		</div>
 	</div>
     <div id="login" v-if="loginIsActive" class="col">
         <h3>Login</h3>
-        <div class="row">
-            <div class="form-group">
-                <label for="email">Email</label>
-                <input id="email" 
-                type="email" 
-                name="email" 
-                class="form-control" 
-                placeholder="email"
-                v-model="user.email"
-                required
-                >
-            </div>
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input id="email" 
+            type="email" 
+            name="email" 
+            class="form-control" 
+            placeholder="email"
+            v-model="user.email"
+            required
+            >
         </div>
-        <div class="row">
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input id="password" 
-                type="password" 
-                class="form-control" 
-                name="password"
-                v-model="user.password"
-                required
-                >
-            </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input id="password" 
+            type="password" 
+            class="form-control" 
+            name="password"
+            v-model="user.password"
+            required
+            >
         </div>
-        <div class="row">
-            <div class="form-group">
-                <input id="signup-btn"
-                type="submit" 
-                class="btn btn-primary" 
-                value="Log In"
-                v-on:click="login()"
-                >
-            </div>
+        <div class="form-group">
+            <input id="signup-btn"
+            type="submit" 
+            class="btn btn-primary" 
+            value="Log In"
+            v-on:click="login()"
+            >
         </div>
     </div>
+  </div>
 </section>
 
 <form id="newprediction" v-model="prediction" class="container" v-if="session.isActive == true">
 	<h3>My Prediction</h3>
-	<div class="col">
 		<div class="form-group">
 			<label for="predix-title">Topic</label>
 			<input type="text" 
@@ -140,8 +127,6 @@
 			v-model="prediction.title"
 			/>
 		</div>
-	</div>
-	<div class="col">
 		<div class="form-group">
 			<label for="predix-premise">I predict…</label>
 			<input 
@@ -150,8 +135,6 @@
 			v-model="prediction.premise"
 			/>
 		</div>
-	</div>
-	<div class="col">
 		<div class="form-group">
 			<label for="predix-description">Details</label>
 			<textarea
@@ -159,10 +142,7 @@
 			v-model="prediction.description"
 			></textarea>
 		</div>
-	</div>
-	<div class="col">
 		<input type="submit" class="btn btn-primary" value="Submit Presiction" v-on:click="submitPrediction()" />
-	</div>
 </form>
 
 <section id="predictions" class="container">
