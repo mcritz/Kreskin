@@ -45,6 +45,17 @@ final class PredictionController {
         return prediction
     }
     
+    func delete(_ req: Request) throws -> ResponseRepresentable {
+      guard let idx: Int = req.parameters["id"]?.id else {
+          throw Abort(.badRequest)
+        }
+      guard let predix: Prediction = Prediction.find(idx) else {
+        throw Abort(.notFound)
+      }
+      let user = try req.user()
+      return true  
+    }
+    
     func update(_ req: Request) throws -> ResponseRepresentable {
         guard let json: JSON = req.json else {
             throw Abort(.badRequest)
