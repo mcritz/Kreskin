@@ -46,14 +46,18 @@ final class PredictionController {
     }
     
     func delete(_ req: Request) throws -> ResponseRepresentable {
-      guard let idx: Int = req.parameters["id"]?.id else {
-          throw Abort(.badRequest)
+        guard let idx: Int = req.parameters["id"]?.int else {
+            throw Abort(.unauthorized)
         }
-      guard let predix: Prediction = Prediction.find(idx) else {
-        throw Abort(.notFound)
-      }
-      let user = try req.user()
-      return true  
+        guard let predix: Prediction = try Prediction.find(idx) else {
+            throw Abort(.notFound)
+        }
+        let user = try req.user()
+        if user.id?.int != predix.userId {
+            throw Abort(.unauthorized)
+        }
+        try predix.delete()
+        return "Deleted \(idx)"
     }
     
     func update(_ req: Request) throws -> ResponseRepresentable {
