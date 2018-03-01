@@ -1,7 +1,7 @@
 dependencies:
   override:
     - eval "$(curl -sL https://apt.vapor.sh)"
-    - sudo apt-get install vapor=14.04
+    - sudo apt-get install vapor=3.1.2
     - sudo chmod -R a+rx /usr/
 test:
   override:
