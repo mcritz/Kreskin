@@ -164,6 +164,11 @@ extension Droplet {
             return "Hello, \(user.name)"
         }
         
+        token.delete("predictions", ":id") { req in
+            let predix = try predixController.delete(req)
+            return predix
+        }
+        
         token.put("predictions", ":id") { req in
             let predix = try predixController.update(req)
             return predix
