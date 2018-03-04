@@ -13,7 +13,7 @@ var store = {
             email: '',
             password: '',
             auth_token: '',
-            user_id: null
+            id: null
         },
         prediction: {
             title: '',
@@ -253,7 +253,7 @@ Vue.component('prediction-comp', {
         'user'
     ],
     template: 
-        '<div v-model="prediction">\
+        '<div class="col-sm-12 col-md-6 col-lg-4 col-xl-3" v-model="prediction">\
             <h4>{{ prediction.title }}</h4>\
             <p>{{ prediction.premise }}</p>\
             <p>{{ prediction.description }}</p>\
@@ -264,7 +264,7 @@ Vue.component('prediction-comp', {
         </div>',
     methods: {
         isOwner: function() {
-            return this.user.user_id == this.prediction.userId;
+            return this.user.id == this.prediction.userId;
         },
         reveal: function(evt) {
             this.prediction.title = this.prediction.title + " (Updating)";

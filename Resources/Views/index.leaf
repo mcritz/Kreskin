@@ -146,6 +146,7 @@
 </div>
 
 <section id="predictions" class="container">
+	<div class="row">
 	<prediction-comp 
 		v-for="prediction in predictions"
 		v-bind:prediction="prediction"
@@ -154,6 +155,7 @@
 		v-on:reveal="update(prediction)"
 		>
 	</prediction-comp>
+	<div class="row">
 </section>
 
 <script src="js/app.js"></script>
