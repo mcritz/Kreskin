@@ -29,7 +29,6 @@ extension Droplet {
         get("index.html") { req in
             return try webController.indexHandler(req)
         }
-        
         // a simple json example response
         get("hello") { req in
             var json = JSON()
@@ -137,6 +136,7 @@ extension Droplet {
             if let userID: Int = user.id?.int {
                 try response.set("user_id", userID)
             }
+            try response.set("user", user)
             return response
         }
     }

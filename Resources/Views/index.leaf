@@ -29,17 +29,17 @@
 	</notification-comp>
 </section>
 
-<div id="greeting" class="container">
+<div id="greeting" class="container" v-model="greeting">
 	<h1>KRZKN</h1>
 	<h2>{{greeting}}</h2>
 </div>
 
-<section id="account" class="container" v-model="user">
+<section id="account" class="container" v-model="sharedState.user">
   <div class="row">
-    <div class="col" v-if="loginIsActive == false">
+    <div class="col" v-if="session.isActive == true">
         <button class="btn" v-on:click="logout()">Sign Out</button>
     </div>
-    <div v-if="loginIsActive" class="col">
+    <div v-if="session.isActive != true" class="col">
 		<h3>Sign Up</h3>
 		<div class="form-group">
 			<label for="name">Your name</label>
@@ -48,7 +48,7 @@
 			name="name" 
 			class="form-control" 
 			placeholder="Your name"
-			v-model="user.name"
+			v-model="sharedState.user.name"
 			required
 			>
 		</div>
@@ -59,7 +59,7 @@
 			name="email" 
 			class="form-control" 
 			placeholder="email"
-			v-model="user.email"
+			v-model="sharedState.user.email"
 			required
 			>
 		</div>
@@ -69,7 +69,7 @@
 			type="password" 
 			class="form-control" 
 			name="password"
-			v-model="user.password"
+			v-model="sharedState.user.password"
 			required
 			>
 		</div>
@@ -82,7 +82,7 @@
 			>
 		</div>
 	</div>
-    <div id="login" v-if="loginIsActive" class="col">
+    <div id="login" v-if="session.isActive != true" class="col">
         <h3>Login</h3>
         <div class="form-group">
             <label for="email">Email</label>
@@ -91,7 +91,7 @@
             name="email" 
             class="form-control" 
             placeholder="email"
-            v-model="user.email"
+            v-model="sharedState.user.email"
             required
             >
         </div>
@@ -101,7 +101,7 @@
             type="password" 
             class="form-control" 
             name="password"
-            v-model="user.password"
+            v-model="sharedState.user.password"
             required
             >
         </div>
@@ -117,7 +117,7 @@
   </div>
 </section>
 
-<form id="newprediction" v-model="prediction" class="container" v-if="session.isActive == true">
+<div id="newprediction" v-model="prediction" class="container" v-if="sharedState.session.isActive == true">
 	<h3>My Prediction</h3>
 		<div class="form-group">
 			<label for="predix-title">Topic</label>
@@ -142,8 +142,8 @@
 			v-model="prediction.description"
 			></textarea>
 		</div>
-		<input type="submit" class="btn btn-primary" value="Submit Presiction" v-on:click="submitPrediction()" />
-</form>
+		<button type="submit" class="btn btn-primary" value="Predict" v-on:click="submitPrediction()">Predict</button>
+</div>
 
 <section id="predictions" class="container">
 	<prediction-comp 

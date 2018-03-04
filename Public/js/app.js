@@ -1,3 +1,7 @@
+const CONST = {
+    USER_KEY : 'user_'
+}
+
 var store = {
     debug: true,
     state: {
@@ -17,14 +21,54 @@ var store = {
             description: ''
         }
     },
-    destroyUser() {
-      var self = this;
+    saveUser: function() {
+        let sessionStore = window.sessionStorage;
         let userKeys = Object.keys(this.state.user);
+        for (var uu = userKeys.length - 1; uu >= 0; uu--) {
+            var keyToSave = userKeys[uu];
+            var thisValue = this.state.user[keyToSave];
+            var nameSpacedKey = CONST.USER_KEY + keyToSave;
+            sessionStore.setItem(nameSpacedKey, thisValue);
+        }
+        return this.state.user;
+    },
+    loadUser: function() {
+        let sessionStore = window.sessionStorage;
+        let userKeys = Object.keys(this.state.user);
+        console.log('LOAD USER\n', userKeys);
+        for (var uk = userKeys.length - 1; uk >= 0; uk--) {
+            var savedUserKey = CONST.USER_KEY + userKeys[uk];
+            var loadedUserValue = sessionStore.getItem(savedUserKey);
+            var thisUserKey = userKeys[uk];
+            this.state.user[thisUserKey] = loadedUserValue;
+        }
+        return this.state.user;
+    },
+    updateUser: function(newUser) {
+        if (this.debug) {
+            console.log('setting user old:', this.state.user, '\nNew: ', newUser);
+        }
+
+        let userKeys = Object.keys(newUser);
+        for (var keyCount = userKeys.length - 1; keyCount >= 0; keyCount--) {
+            let thisKey = userKeys[keyCount];
+            this.state.user[thisKey] = newUser[thisKey];
+        }
+
+        
+        GreetingView.updateGreeting();
+
+        return this.state.user;
+    },
+    destroyUser: function() {
+        let self = this;
+        let userKeys = Object.keys(self.state.user);
         for (tt = 0; tt < userKeys.length; tt++) {
             let thisKey = userKeys[tt];
-            self.state.user.thisKey = '';
+            self.state.user[thisKey] = null;
         }
-        GreetingView.updateGreeting;
+        GreetingView.updateGreeting();
+        return this.saveUser();
     }
 }
 
@@ -32,8 +76,7 @@ var NewPrediction = new Vue({
     el: '#newprediction',
     data: {
         prediction: store.state.prediction,
-        user: store.state.user,
-        session: store.state.session
+        sharedState: store.state
     },
     methods: {
         submitPrediction: function() {
@@ -42,7 +85,7 @@ var NewPrediction = new Vue({
                 method: 'post',
                 url: '/predictions',
                 headers: {
-                    Authorization: 'Bearer ' + this.user.auth_token
+                    Authorization: 'Bearer ' + this.sharedState.user.auth_token
                 }, 
                 data: {
                     title: this.prediction.title,
@@ -79,18 +122,15 @@ var GreetingView = new Vue({
         user: store.state.user
     },
     mounted: function() {
-        console.log('greetingview', this.user);
         this.updateGreeting();
     },
     methods: {
         updateGreeting: function() {
-            console.log('updateGreeting', this.user);
-            var self = this;
             if (!!this.user
                 && !!this.user.name) {
-                self.greeting = "Welcome, " + this.user.name + "!";
+                this.greeting = "Welcome, " + this.user.name + "!";
             } else {
-                self.greeting = "Hi there!";
+                this.greeting = "Hi there!";
             }
         }
     }
@@ -99,9 +139,7 @@ var GreetingView = new Vue({
 var AccountView = new Vue({
     el: '#account',
     data: {
-        loginIsActive: false,
-        store: store,
-        user: store.state.user,
+        sharedState: store.state,
         session: store.state.session
     },
     mounted: function() {
@@ -115,29 +153,22 @@ var AccountView = new Vue({
             console.log('password', this.user.password);
         },
         logout: function(evt) {
-            // this.store.destroyUser();
             axios.post('/logout', {
 
             }).then(response => {
                 console.log('logout', response);
-                let sessionStore = window.sessionStorage;
-                sessionStore.removeItem('user_name');
-                sessionStore.removeItem('user_email');
-                sessionStore.removeItem('auth_token');
 
-                let userKeys = Object.keys(this.user);
-                for (tt = 0; tt < userKeys.length; tt++) {
-                    let thisKey = userKeys[tt];
-                    this.user[thisKey] = '';
-                }
+                store.destroyUser();
+                window.sessionStorage.clear();
+
+                this.session.isActive = false;
 
                 GreetingView.updateGreeting();
-                this.loginIsActive = true;
+
                 NotificationsView.notifications.push({
                     message: 'Success: Logged out',
                     type: 'success'
                 });
-                this.session.isActive = false;
             }).catch(error => {
                 NotificationsView.notifications.push({
                     message: 'Error: Logout failed',
@@ -161,28 +192,27 @@ var AccountView = new Vue({
             });
         },
         login: function(evt) {
-            console.log('sending login', this.user);
+            var self = this;
+            console.log('sending login', this.sharedState.user);
             axios({
                 method: 'post',
                 url: '/login',
                 auth: {
-                    username: this.user.email,
-                    password: this.user.password
+                    username: this.sharedState.user.email,
+                    password: this.sharedState.user.password
                 }
             }).then(response => {
                 console.log('login', response);
-                this.loginIsActive = false;
-                let sessionStore = window.sessionStorage;
+                var tempUser = response.data.user;
 
-                sessionStore.setItem('user_name', this.user.name);
-                sessionStore.setItem('user_email', this.user.email);
+                tempUser.auth_token = response.data.token;
+
+                store.updateUser(tempUser);
+                store.saveUser();
+
+                var sessionStore = window.sessionStorage;
                 sessionStore.setItem('auth_token', response.data.token);
-                sessionStore.setItem('user_id', response.data.user_id);
-
-                this.user_id = response.data.user_id;
-                this.user.auth_token = response.data.token;
-
-                this.session.isActive = true;
+                self.session.isActive = true;
 
                 GreetingView.updateGreeting();
 
@@ -191,6 +221,8 @@ var AccountView = new Vue({
                     type: 'success'
                 });
             }).catch(error => {
+                self.session.isActive = false;
+
                 NotificationsView.notifications.push({
                     message: error.response.data.reason,
                     type: "error"
@@ -199,25 +231,17 @@ var AccountView = new Vue({
             });
         },
         checkLogin: function() {
-            let sessionStore = window.sessionStorage;
-            var storedUserName = sessionStore.getItem('user_name');
-            var storedEmail = sessionStore.getItem('user_email');
-            var storedAuthToken = sessionStore.getItem('auth_token');
-            var storedUserID = sessionStore.getItem('user_id');
-            if (!!storedEmail 
-                && !!storedAuthToken
-                && !!storedUserName
-                && !!storedUserID) {
-                this.user.name = storedUserName;
-                this.user.auth_token = storedAuthToken;
-                this.user.email = storedEmail;
-                this.user.user_id = storedUserID;
+            var storedUser = store.loadUser();
+            if (!!storedUser) {
+                console.log('checkLogin pass');
+                this.user = storedUser;
 
                 GreetingView.updateGreeting();
 
                 this.session.isActive = true;
             } else {
-                this.loginIsActive = true;
+                console.log('checkLogin fail');
+                this.session.isActive = false;
             }
         }
     }
@@ -263,7 +287,6 @@ var PredictionsView = new Vue({
     },
     mounted: function () {
         this.fetchData();
-        this.user = store.state.user;
     },
     methods: {
         fetchData: function() {
@@ -299,7 +322,7 @@ var PredictionsView = new Vue({
     }
 });
 
-var NotificationsView = new Vue({
+const NotificationsView = new Vue({
     el: '#notifications',
     data: {
         notifications: []
