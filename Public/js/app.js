@@ -258,8 +258,8 @@ Vue.component('prediction-comp', {
             <p>{{ prediction.premise }}</p>\
             <p>{{ prediction.description }}</p>\
             <div v-if="isOwner()">\
-                <button v-if="prediction.isRevealed == false" v-on:click="reveal">Show</button>\
-                <button v-if="prediction.isRevealed == true" v-on:click="hide">Hide</button>\
+                <button v-if="prediction.isRevealed == false" v-on:click="reveal" class="btn btn-sm">Show</button>\
+                <button v-if="prediction.isRevealed == true" v-on:click="hide" class="btn btn-sm">Hide</button>\
             </div>\
         </div>',
     methods: {
