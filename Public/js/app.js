@@ -1,5 +1,6 @@
 const CONST = {
-    USER_KEY : 'user_'
+    USER_KEY : 'user_',
+    AUTH_TOKEN : 'session_auth_token'
 }
 
 var store = {
@@ -22,9 +23,18 @@ var store = {
             description: ''
         }
     },
-    updateSession: function(isActive) {
+    updateSession: function(isActive, auth_token) {
         this.state.session.isActive = isActive;
         window.localStorage.setItem('session_is_active', isActive);
+        if (!isActive) {
+            window.localStorage.removeItem(CONST.AUTH_TOKEN);
+            return;
+        }
+        if(!auth_token) {
+            return;
+        }
+        this.state.session.auth_token = auth_token;
+        window.localStorage.setItem(CONST.AUTH_TOKEN, auth_token);
     },
     saveUser: function() {
         let sessionStore = window.sessionStorage;
@@ -40,7 +50,6 @@ var store = {
     loadUser: function() {
         let sessionStore = window.sessionStorage;
         let userKeys = Object.keys(this.state.user);
-        console.log('LOAD USER\n', userKeys);
         for (let uk = userKeys.length - 1; uk >= 0; uk--) {
             var savedUserKey = CONST.USER_KEY + userKeys[uk];
             var loadedUserValue = sessionStore.getItem(savedUserKey);
@@ -85,12 +94,11 @@ const NewPrediction = new Vue({
     },
     methods: {
         submitPrediction: function() {
-            console.log('submitPrediction', this.prediction);
             axios({
                 method: 'post',
                 url: '/predictions',
                 headers: {
-                    Authorization: 'Bearer ' + this.sharedState.user.auth_token
+                    Authorization: 'Bearer ' + this.sharedState.session.auth_token
                 }, 
                 data: {
                     title: this.prediction.title,
@@ -98,7 +106,6 @@ const NewPrediction = new Vue({
                     description: this.prediction.description
                 }
             }).then(response => {
-                console.log('submitPrediction', response);
                 this.prediction = {
                     title : '',
                     premise: '',
@@ -110,7 +117,6 @@ const NewPrediction = new Vue({
                     type: 'success'
                 });
             }).catch(error => {
-                console.log('fail: submitPrediction', error);
                 NotificationsView.notifications.push({
                     message: 'Error: Prediction failed',
                     type: 'error'
@@ -150,12 +156,6 @@ const AccountView = new Vue({
         this.checkLogin();
     },
     methods: {
-        ping: function(evt) {
-            console.log('clicked');
-            console.log('name', this.user.name);
-            console.log('email', this.user.email);
-            console.log('password', this.user.password);
-        },
         logout: function(evt) {
             axios.post('/logout', {
 
@@ -197,7 +197,6 @@ const AccountView = new Vue({
             });
         },
         login: function(evt) {
-            console.log('sending login', this.sharedState.user);
             axios({
                 method: 'post',
                 url: '/login',
@@ -213,11 +212,7 @@ const AccountView = new Vue({
 
                 store.updateUser(tempUser);
                 store.saveUser();
-
-                let localStore = window.localStorage;
-                localStore.setItem('session_auth_token', response.data.token);
-                this.sharedState.session.auth_token = response.data.token;
-                store.updateSession(true);
+                store.updateSession(true, response.data.token);
 
                 GreetingView.updateGreeting();
 
@@ -236,40 +231,38 @@ const AccountView = new Vue({
             });
         },
         checkLogin: function() {
+            // Pull some stuff out of persistence
             let localStore = window.localStorage;
             let isSessionActive = localStore.getItem('session_is_active');
-            let auth_token = localStore.getItem('auth_token');
-            let storedUser = store.loadUser();
-
-            // is there a stored user
-            if (!!storedUser) {
-                console.log('checkLogin pass');
-                this.user = storedUser;
-
-                GreetingView.updateGreeting();
-
-                store.updateSession(true);
-            } else {
-                console.log('checkLogin fail');
-                // check to see if the current client token retrieves anything
-                axios.get('/me',
-                { 
-                    //data
-                },
-                {
-                    headers: {
-                        'Authorization' : 'Bearer ' + auth_token
-                    }
-                })
-                .then(function (response) {
-                    store.updateSession(isSessionActive);
-                    let storedUser = store.loadUser();
-                    store.updateSession(true);
-                })
-                .catch(function (error) {
-                    store.updateSession(false);
-                })
+            if (!isSessionActive) { 
+                console.log('Not logged in.');
+                return;
             }
+            let auth_token = localStore.getItem(CONST.AUTH_TOKEN);
+            if (!auth_token) {
+                console.log('Auth Token invalid.');
+                return;
+            }
+
+            // Check that the stuff exists
+            axios({
+                method: 'get',
+                url: '/me',
+                headers: {
+                    'Authorization' : 'Bearer ' + auth_token
+                }
+            })
+            .then(function (response) {
+                // stuff exists. Refresh UI.
+                store.updateSession(true, auth_token);
+                store.updateUser(response.data);
+                GreetingView.updateGreeting();
+            })
+            .catch(function (error) {
+                // Handle invalid session
+                store.updateSession(false);
+                GreetingView.updateGreeting();
+            });
         }
     }
 });
@@ -333,10 +326,15 @@ const PredictionsView = new Vue({
                     'Authorization' : 'Bearer ' + token
                 }
             })
-            .then(function (response) {
-                self.fetchData();
+            .then(response => {
+                // Need to find the specific prediction from the array to modify
+                let updatedKeys = Object.keys(response.data);
+                for (let uk = updatedKeys.length - 1; uk >= 0; uk--) {
+                    let thisKey = updatedKeys[uk];
+                    predix[thisKey] = response.data[thisKey];
+                }
             })
-            .catch(function (error) {
+            .catch(error => {
                 self.fetchData();
 
                 // 401 Unauthorized. User session has expired. Show login.
@@ -369,7 +367,6 @@ const NotificationsView = new Vue({
     },
     methods: {
         notifications: function(options) {
-            console.log('addNotification', options);
             var message,
                 kind, 
                 oid = this.notifications.length;
