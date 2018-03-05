@@ -34,12 +34,12 @@
 	<h2>{{greeting}}</h2>
 </div>
 
-<section id="account" class="container" v-model="sharedState.user">
+<section id="account" class="container" v-model="sharedState">
   <div class="row">
-    <div class="col" v-if="session.isActive == true">
+    <div class="col" v-if="sharedState.session.isActive == true">
         <button class="btn" v-on:click="logout()">Sign Out</button>
     </div>
-    <div v-if="session.isActive != true" class="col">
+    <div v-if="sharedState.session.isActive != true" class="col">
 		<h3>Sign Up</h3>
 		<div class="form-group">
 			<label for="name">Your name</label>
@@ -82,7 +82,7 @@
 			>
 		</div>
 	</div>
-    <div id="login" v-if="session.isActive != true" class="col">
+    <div id="login" v-if="sharedState.session.isActive != true" class="col">
         <h3>Login</h3>
         <div class="form-group">
             <label for="email">Email</label>
