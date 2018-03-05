@@ -23,7 +23,9 @@
 		v-on:dismiss="notifications.splice(index, 1)"
     v-bind:class="{ 
       'alert-danger': notice.type == 'error',
-      'alert-success': notice.type == 'success'
+      'alert-success': notice.type == 'success',
+      'alert-warning': notice.type == 'warning',
+      'alert-info': notice.type == 'info'
      }"
 		>
 	</notification-comp>

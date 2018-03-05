@@ -161,7 +161,7 @@ extension Droplet {
         // Authorization: Bearer <token from /login>
         token.get("me") { req in
             let user = try req.user()
-            return "Hello, \(user.name)"
+            return user
         }
         
         token.delete("predictions", ":id") { req in

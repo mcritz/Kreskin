@@ -238,9 +238,10 @@ const AccountView = new Vue({
         checkLogin: function() {
             let localStore = window.localStorage;
             let isSessionActive = localStore.getItem('session_is_active');
-            store.updateSession(isSessionActive);
-
+            let auth_token = localStore.getItem('auth_token');
             let storedUser = store.loadUser();
+
+            // is there a stored user
             if (!!storedUser) {
                 console.log('checkLogin pass');
                 this.user = storedUser;
@@ -250,7 +251,24 @@ const AccountView = new Vue({
                 store.updateSession(true);
             } else {
                 console.log('checkLogin fail');
-                store.updateSession(false);
+                // check to see if the current client token retrieves anything
+                axios.get('/me',
+                { 
+                    //data
+                },
+                {
+                    headers: {
+                        'Authorization' : 'Bearer ' + auth_token
+                    }
+                })
+                .then(function (response) {
+                    store.updateSession(isSessionActive);
+                    let storedUser = store.loadUser();
+                    store.updateSession(true);
+                })
+                .catch(function (error) {
+                    store.updateSession(false);
+                })
             }
         }
     }
@@ -321,7 +339,18 @@ const PredictionsView = new Vue({
             .catch(function (error) {
                 self.fetchData();
 
-                var reason = 'Error: Couldn’t update notification. ';
+                // 401 Unauthorized. User session has expired. Show login.
+                if (error.response.status == 401) {
+                    store.destroyUser();
+                    store.updateSession(false);
+                    NotificationsView.notifications.push({
+                        message: 'Your session has expired.',
+                        type: 'warning'
+                    });                    
+                    return;
+                }
+
+                var reason = 'Error: Couldn’t update notification.';
                 NotificationsView.notifications.push({
                     message: reason,
                     type: 'error'
