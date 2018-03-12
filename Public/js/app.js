@@ -277,6 +277,7 @@ Vue.component('prediction-comp', {
             <h4>{{ prediction.title }}</h4>\
             <p>{{ prediction.premise }}</p>\
             <p>{{ prediction.description }}</p>\
+            <date>{{ formatDate(prediction.createdAt) }}</date>\
             <div v-if="isOwner()">\
                 <button v-if="prediction.isRevealed == false" v-on:click="reveal" class="btn btn-sm">Show</button>\
                 <button v-if="prediction.isRevealed == true" v-on:click="hide" class="btn btn-sm">Hide</button>\
@@ -299,6 +300,10 @@ Vue.component('prediction-comp', {
         },
         deletePrediction: function(evt) {
             this.$emit('delisandwich');
+        },
+        formatDate: function(dateString) {
+            var date = new Date(dateString);
+            return date.toLocaleString();
         }
     }
 });
