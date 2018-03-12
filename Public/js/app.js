@@ -280,6 +280,7 @@ Vue.component('prediction-comp', {
             <div v-if="isOwner()">\
                 <button v-if="prediction.isRevealed == false" v-on:click="reveal" class="btn btn-sm">Show</button>\
                 <button v-if="prediction.isRevealed == true" v-on:click="hide" class="btn btn-sm">Hide</button>\
+                <button v-on:click="deletePrediction" class="btn btn-sm btn-danger">Delete</button>\
             </div>\
         </div>',
     methods: {
@@ -295,6 +296,9 @@ Vue.component('prediction-comp', {
             this.prediction.title = this.prediction.title + " (Updating)";
             this.prediction.isRevealed = false;
             this.$emit('reveal');
+        },
+        deletePrediction: function(evt) {
+            console.log(this.prediction);
         }
     }
 });
@@ -313,6 +317,9 @@ const PredictionsView = new Vue({
             axios.get('/predictions').then(response => {
                 this.predictions = response.data;
             });
+        },
+        delete: function(predix) {
+
         },
         update: function(predix) {
             var self = this;
