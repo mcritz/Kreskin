@@ -298,7 +298,7 @@ Vue.component('prediction-comp', {
             this.$emit('reveal');
         },
         deletePrediction: function(evt) {
-            console.log(this.prediction);
+            this.$emit('delisandwich');
         }
     }
 });
@@ -307,7 +307,8 @@ const PredictionsView = new Vue({
     el: '#predictions',
     data: {
         predictions: [],
-        user: store.state.user
+        user: store.state.user,
+        sharedState: store.state
     },
     mounted: function () {
         this.fetchData();
@@ -318,8 +319,29 @@ const PredictionsView = new Vue({
                 this.predictions = response.data;
             });
         },
-        delete: function(predix) {
-
+        delisandwich: function(predix) {
+            var self = this;
+            this.predictions.splice(predix.index, 1);
+            axios({
+                method: 'delete',
+                url: '/predictions/' + predix.id,
+                headers: {
+                    Authorization: 'Bearer ' + this.sharedState.session.auth_token
+                }, 
+                data: {
+                }
+            }).then(response => {
+                NotificationsView.notifications.push({
+                    message: "Prediction deleted",
+                    type: "success"
+                });
+            }).catch(error => {
+                this.fetchData();
+                NotificationsView.notifications.push({
+                    message: "Error: prediction not deleted",
+                    type: "error"
+                });
+            });
         },
         update: function(predix) {
             var self = this;

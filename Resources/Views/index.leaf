@@ -155,7 +155,7 @@
         v-bind:user="user"
 		v-bind:key="prediction.id"
 		v-on:reveal="update(prediction)"
-		v-on:deletePrediction="update(prediction)"
+		v-on:delisandwich="delisandwich(prediction)"
 		>
 	</prediction-comp>
 	<div class="row">
