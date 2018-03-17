@@ -149,6 +149,7 @@ extension Droplet {
     /// the authentication token received during login.
     /// All of our secure routes will go here.
     private func setupTokenProtectedRoutes() throws {
+        let topixController = TopicController()
         let predixController = PredictionController()
 
         // creates a route group protected by the token middleware.
@@ -175,6 +176,10 @@ extension Droplet {
             }
             try User.setupAdmin(drop: self)
             return isAdmin ? "Admin user" : "Not an admin"
+        }
+        
+        token.post("topics") { req in
+            return try topixController.create(req)
         }
         
         token.delete("predictions", ":id") { req in
