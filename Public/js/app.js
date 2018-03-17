@@ -281,12 +281,21 @@ Vue.component('prediction-comp', {
             <div v-if="isOwner()">\
                 <button v-if="prediction.isRevealed == false" v-on:click="reveal" class="btn btn-sm">Show</button>\
                 <button v-if="prediction.isRevealed == true" v-on:click="hide" class="btn btn-sm">Hide</button>\
-                <button v-on:click="deletePrediction" class="btn btn-sm btn-danger">Delete</button>\
+            </div>\
+            <div v-if="isAdmin()">\
+                <button v-on:click="deletePrediction" class="btn btn-sm btn-danger">Remove</button>\
             </div>\
         </div>',
     methods: {
+        isAdmin: function() {
+            return this.user.isAdmin;
+        },
         isOwner: function() {
-            return this.user.id == this.prediction.userId;
+            if (this.user.id == this.prediction.userId
+                || this.user.isAdmin) {
+                return true;
+            }
+            return false;
         },
         reveal: function(evt) {
             this.prediction.title = this.prediction.title + " (Updating)";
