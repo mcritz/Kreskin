@@ -12,7 +12,7 @@ extension Droplet {
     /// without any authentication. This includes
     /// creating a new User.
     private func setupUnauthenticatedRoutes() throws {
-        
+        let topixController = TopicController()
         let predixController = PredictionController()
         let userController = UserController()
         let webController = WebController(renderer: view)
@@ -90,6 +90,10 @@ extension Droplet {
         get("predictions") { req in
             let predix = try predixController.index(req)
             return predix
+        }
+        
+        get("topics") { req in
+            return try topixController.index(req)
         }
         
         get("users") { req in

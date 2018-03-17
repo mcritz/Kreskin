@@ -25,6 +25,7 @@ extension Config {
         preparations.append(User.self)
         preparations.append(Token.self)
         preparations.append(Prediction.self)
+        preparations.append(Topic.self)
         
         // Update schema after all models provisioned
         preparations.append(AdminMigration.self)
