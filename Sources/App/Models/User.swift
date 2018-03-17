@@ -14,9 +14,11 @@ final class User: Model {
 
     /// The user's _hashed_ password
     var password: String?
+    
+    var isAdmin: Bool?
 
     /// Creates a new User
-    init(name: String, email: String, password: String? = nil) {
+    init(name: String, email: String, password: String) {
         self.name = name
         self.email = email
         self.password = password
@@ -30,6 +32,7 @@ final class User: Model {
         name = try row.get("name")
         email = try row.get("email")
         password = try row.get("password")
+        isAdmin = try row.get("isAdmin")
     }
 
     // Serializes the Post to the database
@@ -38,6 +41,7 @@ final class User: Model {
         try row.set("name", name)
         try row.set("email", email)
         try row.set("password", password)
+        try row.set("isAdmin", isAdmin)
         return row
     }
 }
@@ -66,6 +70,23 @@ extension User: Preparation {
     /// Undoes what was done in `prepare`
     static func revert(_ database: Database) throws {
         try database.delete(self)
+    }
+}
+
+final class AdminMigration: Preparation {
+    static func prepare(_ database: Database) throws {
+        do {
+            try database.modify(User.self) { builder in
+                print("MODIFY")
+                builder.bool("isAdmin", optional: true, unique: false, default: false)
+            }
+        } catch {
+            print("ONOESZ!")
+        }
+    }
+    
+    static func revert(_ database: Database) throws {
+        try database.delete(User.self)
     }
 }
 
@@ -104,7 +125,8 @@ extension User: JSONConvertible {
         
         self.init(
             name: realName,
-            email: realEmail
+            email: realEmail,
+            password: realPassword
         )
         id = try json.get("id")
     }
@@ -115,6 +137,7 @@ extension User: JSONConvertible {
         try json.set("name", name)
         try json.set("email", email)
         try json.set("predictions", predictions.all())
+        try json.set("isAdmin", isAdmin)
         return json
     }
 }
@@ -162,4 +185,37 @@ extension Request {
 // with an access token.
 extension User: TokenAuthenticatable {
     typealias TokenType = Token
+}
+
+extension User {
+    private static func checkForAdmins() throws -> Bool {
+        let existingAdmins = try User.makeQuery().filter("isAdmin", true).count()
+        return existingAdmins > 0 ? true : false
+    }
+
+    static func setupAdmin(drop: Droplet) throws {
+        guard try !self.checkForAdmins() else {
+            throw Abort(.forbidden, reason: "An admin user already exists.")
+        }
+        let maybeAdminEmail = drop.config["admin-user", "email"]?.string
+        let maybeAdminPassword = drop.config["admin-user", "password"]?.string
+        guard let email:String  = maybeAdminEmail else {
+            throw Abort(.internalServerError, reason: "Server is misconfigured.")
+        }
+        guard var password: String = maybeAdminPassword else {
+            throw Abort(.internalServerError, reason: "Server is misconfigured.")
+        }
+        do {
+            password = try BCryptHasher().make(password).makeString()
+        } catch {
+            throw Abort(.internalServerError, reason: "Could not encrypt admin password.")
+        }
+        let admin = User(name: "System Admin", email: email, password: password)
+        admin.isAdmin = true
+        do {
+            try admin.save()
+        } catch {
+            throw Abort(.imATeapot, reason: "Could not create admin user")
+        }
+    }
 }
