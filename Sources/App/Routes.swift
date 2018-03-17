@@ -182,6 +182,10 @@ extension Droplet {
             return try topixController.create(req)
         }
         
+        token.delete("topics", ":id") { req in
+            return try topixController.delete(req)
+        }
+        
         token.delete("predictions", ":id") { req in
             let predix = try predixController.delete(req)
             return predix

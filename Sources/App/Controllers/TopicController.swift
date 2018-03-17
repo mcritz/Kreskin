@@ -28,4 +28,14 @@ final class TopicController {
         }
         return topic
     }
+    
+    func delete(_ req: Request) throws -> ResponseRepresentable {
+        guard let idx: Int = req.parameters["id"]?.int else {
+            throw Abort(.notFound)
+        }
+        if let topic = try Topic.find(idx) {
+            try topic.delete()
+        }
+        return "Deleted \(idx)"
+    }
 }
