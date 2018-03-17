@@ -137,7 +137,11 @@ extension User: JSONConvertible {
         try json.set("name", name)
         try json.set("email", email)
         try json.set("predictions", predictions.all())
-        try json.set("isAdmin", isAdmin)
+        if let reallyAdmin: Bool = isAdmin {
+            if reallyAdmin {
+                try json.set("isAdmin", reallyAdmin)
+            }
+        }
         return json
     }
 }
