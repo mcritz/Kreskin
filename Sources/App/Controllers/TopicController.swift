@@ -29,9 +29,19 @@ final class TopicController {
         return topic
     }
     
+    func get(_ req: Request) throws -> ResponseRepresentable {
+        guard let idd: Int = req.parameters["id"]?.int else {
+            throw Abort(.badRequest)
+        }
+        if let topic = try Topic.find(idd) {
+            return try topic.makeJSON()
+        }
+        throw Abort(.internalServerError)
+    }
+    
     func delete(_ req: Request) throws -> ResponseRepresentable {
         guard let idx: Int = req.parameters["id"]?.int else {
-            throw Abort(.notFound)
+            throw Abort(.badRequest)
         }
         if let topic = try Topic.find(idx) {
             try topic.delete()

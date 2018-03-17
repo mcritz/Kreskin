@@ -181,7 +181,9 @@ extension Droplet {
         token.post("topics") { req in
             return try topixController.create(req)
         }
-        
+        token.get("topics", ":id") { req in
+            return try topixController.get(req)
+        }
         token.delete("topics", ":id") { req in
             return try topixController.delete(req)
         }
