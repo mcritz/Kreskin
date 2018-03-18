@@ -43,9 +43,14 @@ final class TopicController {
         guard let idx: Int = req.parameters["id"]?.int else {
             throw Abort(.badRequest)
         }
+        let user = try req.user()
         if let topic = try Topic.find(idx) {
-            try topic.delete()
+            if topic.userId == user.id?.int {
+                try topic.delete()
+            } else {
+                throw Abort(.unauthorized)
+            }
         }
-        return "Deleted \(idx)"
+        throw Abort(.notFound, reason: "Topic \(idx) does not exist")
     }
 }
