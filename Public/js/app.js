@@ -277,14 +277,25 @@ Vue.component('prediction-comp', {
             <h4>{{ prediction.title }}</h4>\
             <p>{{ prediction.premise }}</p>\
             <p>{{ prediction.description }}</p>\
+            <date>{{ formatDate(prediction.createdAt) }}</date>\
             <div v-if="isOwner()">\
                 <button v-if="prediction.isRevealed == false" v-on:click="reveal" class="btn btn-sm">Show</button>\
                 <button v-if="prediction.isRevealed == true" v-on:click="hide" class="btn btn-sm">Hide</button>\
             </div>\
+            <div v-if="isAdmin()">\
+                <button v-on:click="deletePrediction" class="btn btn-sm btn-danger">Remove</button>\
+            </div>\
         </div>',
     methods: {
+        isAdmin: function() {
+            return this.user.isAdmin;
+        },
         isOwner: function() {
-            return this.user.id == this.prediction.userId;
+            if (this.user.id == this.prediction.userId
+                || this.user.isAdmin) {
+                return true;
+            }
+            return false;
         },
         reveal: function(evt) {
             this.prediction.title = this.prediction.title + " (Updating)";
@@ -295,6 +306,13 @@ Vue.component('prediction-comp', {
             this.prediction.title = this.prediction.title + " (Updating)";
             this.prediction.isRevealed = false;
             this.$emit('reveal');
+        },
+        deletePrediction: function(evt) {
+            this.$emit('delisandwich');
+        },
+        formatDate: function(dateString) {
+            var date = new Date(dateString);
+            return date.toLocaleString();
         }
     }
 });
@@ -303,7 +321,8 @@ const PredictionsView = new Vue({
     el: '#predictions',
     data: {
         predictions: [],
-        user: store.state.user
+        user: store.state.user,
+        sharedState: store.state
     },
     mounted: function () {
         this.fetchData();
@@ -312,6 +331,30 @@ const PredictionsView = new Vue({
         fetchData: function() {
             axios.get('/predictions').then(response => {
                 this.predictions = response.data;
+            });
+        },
+        delisandwich: function(predix) {
+            var self = this;
+            this.predictions.splice(predix.index, 1);
+            axios({
+                method: 'delete',
+                url: '/predictions/' + predix.id,
+                headers: {
+                    Authorization: 'Bearer ' + this.sharedState.session.auth_token
+                }, 
+                data: {
+                }
+            }).then(response => {
+                NotificationsView.notifications.push({
+                    message: "Prediction deleted",
+                    type: "success"
+                });
+            }).catch(error => {
+                this.fetchData();
+                NotificationsView.notifications.push({
+                    message: "Error: prediction not deleted",
+                    type: "error"
+                });
             });
         },
         update: function(predix) {

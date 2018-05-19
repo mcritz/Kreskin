@@ -47,14 +47,16 @@ final class PredictionController {
     
     func delete(_ req: Request) throws -> ResponseRepresentable {
         guard let idx: Int = req.parameters["id"]?.int else {
-            throw Abort(.unauthorized)
+            throw Abort(.badRequest, reason: "Request requires id parameter.")
         }
         guard let predix: Prediction = try Prediction.find(idx) else {
             throw Abort(.notFound)
         }
-        let user = try req.user()
-        if user.id?.int != predix.userId {
-            throw Abort(.unauthorized)
+        let maybeAdmin = try req.user().isAdmin
+        if let reallyAdmin: Bool = maybeAdmin {
+            if !reallyAdmin {
+                throw Abort(.unauthorized)
+            }
         }
         try predix.delete()
         return "Deleted \(idx)"
@@ -75,7 +77,8 @@ final class PredictionController {
         guard let userId: Int = user.id?.int else {
             throw Abort(.internalServerError)
         }
-        if userId != predix.userId {
+        if userId != predix.userId
+            && user.isAdmin != true {
             throw Abort(.unauthorized)
         }
         if let isRevealed: Bool = json["isRevealed"]?.bool {

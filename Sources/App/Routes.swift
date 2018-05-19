@@ -164,6 +164,15 @@ extension Droplet {
             return user
         }
         
+        token.get("admin") { req in
+            let maybeAdminProperty: Bool? = try req.user().isAdmin
+            guard let isAdmin: Bool = maybeAdminProperty else {
+                throw Abort(.unauthorized)
+            }
+            try User.setupAdmin(drop: self)
+            return isAdmin ? "Admin user" : "Not an admin"
+        }
+        
         token.delete("predictions", ":id") { req in
             let predix = try predixController.delete(req)
             return predix
