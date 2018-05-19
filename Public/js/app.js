@@ -184,9 +184,9 @@ const AccountView = new Vue({
         },
         signup: function(evt) {
             axios.post('/users', {
-                email: this.user.email,
-                name: this.user.name,
-                password: this.user.password
+                email: this.sharedState.user.email,
+                name: this.sharedState.user.name,
+                password: this.sharedState.user.password
             }).then(response => {
                 this.login();
             }).catch(error => {
