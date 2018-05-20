@@ -77,11 +77,10 @@ final class AdminMigration: Preparation {
     static func prepare(_ database: Database) throws {
         do {
             try database.modify(User.self) { builder in
-                print("MODIFY")
                 builder.bool("isAdmin", optional: true, unique: false, default: false)
             }
         } catch {
-            print("ONOESZ!")
+            throw Abort(.internalServerError, metadata: nil, reason: "Admin migration failed", identifier: nil, possibleCauses: nil, suggestedFixes: nil, documentationLinks: nil, stackOverflowQuestions: nil, gitHubIssues: nil)
         }
     }
     
