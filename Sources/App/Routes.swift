@@ -173,6 +173,17 @@ extension Droplet {
             return isAdmin ? "Admin user" : "Not an admin"
         }
         
+        token.put("admin") { req in
+            if try User.checkForAdmins() {
+                print("Admin users already exist")
+                throw Abort(.unauthorized)
+            }
+            let user = try req.user()
+            user.isAdmin = true
+            try user.save()
+            return user
+        }
+        
         token.delete("predictions", ":id") { req in
             let predix = try predixController.delete(req)
             return predix

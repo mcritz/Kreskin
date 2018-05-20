@@ -191,7 +191,7 @@ extension User: TokenAuthenticatable {
 }
 
 extension User {
-    private static func checkForAdmins() throws -> Bool {
+    static func checkForAdmins() throws -> Bool {
         let existingAdmins = try User.makeQuery().filter("isAdmin", true).count()
         return existingAdmins > 0 ? true : false
     }
