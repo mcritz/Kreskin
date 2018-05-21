@@ -13,6 +13,18 @@ final class TopicController {
         return try topix.makeJSON()
     }
     
+    func find(existing topic: Topic) throws -> Bool {
+        var topicExists = true
+        do {
+            let topicQuery = try Topic.makeQuery()
+            let results = try topicQuery.filter("title", topic.title)
+            topicExists = try results.count() > 0
+        } catch {
+            throw Abort(.badRequest)
+        }
+        return topicExists
+    }
+    
     func create(_ req: Request) throws -> ResponseRepresentable {
         guard var json = req.json else {
             throw Abort(.badRequest)
@@ -22,10 +34,13 @@ final class TopicController {
             let user = try req.user()
             try json.set("userId", user.id)
             topic = try Topic(json: json)
-            try topic.save()
         } catch {
             throw Abort(.internalServerError)
         }
+        if try find(existing: topic) {
+            throw Abort(.forbidden, reason: "Topic already exists")
+        }
+        try topic.save()
         return topic
     }
     
