@@ -96,11 +96,6 @@ extension Droplet {
             return try topixController.index(req)
         }
         
-        get("users") { req in
-            let users = try userController.index(req)
-            return users
-        }
-        
         get("users", ":id", "predictions") { req in
             let userPredix = try userController.predictionsForUser(with: req)
             return userPredix
@@ -151,6 +146,7 @@ extension Droplet {
     private func setupTokenProtectedRoutes() throws {
         let topixController = TopicController()
         let predixController = PredictionController()
+        let userController = UserController()
 
         // creates a route group protected by the token middleware.
         // the User type can be passed to this middleware since it
@@ -176,6 +172,18 @@ extension Droplet {
             }
             try User.setupAdmin(drop: self)
             return isAdmin ? "Admin user" : "Not an admin"
+        }
+        
+        token.get("users") { req in
+            let maybeAdmin = try req.user().isAdmin
+            guard let isAdmin: Bool = maybeAdmin else {
+                throw Abort(.unauthorized)
+            }
+            guard isAdmin else {
+                throw Abort(.unauthorized)
+            }
+            let users = try userController.index(req)
+            return users
         }
         
         token.post("topics") { req in
