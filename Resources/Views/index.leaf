@@ -15,13 +15,13 @@
 <body>
 
 <section id="notifications" style="position: fixed; width: 100vw; z-index: 999999;">
-	<notification-comp 
+	<notification-comp
         style="-webkit-backdrop-filter: blur(10px) brightness(90%);"
 		v-for="(notice, index) in notifications"
 		v-bind:notice="notice"
 		v-bind:key="notice.message"
 		v-on:dismiss="notifications.splice(index, 1)"
-    v-bind:class="{ 
+    v-bind:class="{
       'alert-danger': notice.type == 'error',
       'alert-success': notice.type == 'success',
       'alert-warning': notice.type == 'warning',
@@ -45,10 +45,10 @@
 		<h3>Sign Up</h3>
 		<div class="form-group">
 			<label for="name">Your name</label>
-			<input id="name" 
-			type="text" 
-			name="name" 
-			class="form-control" 
+			<input id="name"
+			type="text"
+			name="name"
+			class="form-control"
 			placeholder="Your name"
 			v-model="sharedState.user.name"
 			required
@@ -56,10 +56,10 @@
 		</div>
 		<div class="form-group">
 			<label for="email">Email</label>
-			<input id="email" 
-			type="email" 
-			name="email" 
-			class="form-control" 
+			<input id="email"
+			type="email"
+			name="email"
+			class="form-control"
 			placeholder="email"
 			v-model="sharedState.user.email"
 			required
@@ -67,9 +67,9 @@
 		</div>
 		<div class="form-group">
 			<label for="password">Password</label>
-			<input id="password" 
-			type="password" 
-			class="form-control" 
+			<input id="password"
+			type="password"
+			class="form-control"
 			name="password"
 			v-model="sharedState.user.password"
 			required
@@ -77,8 +77,8 @@
 		</div>
 		<div class="form-group">
 			<input id="signup-btn"
-			type="submit" 
-			class="btn btn-primary" 
+			type="submit"
+			class="btn btn-primary"
 			value="Sign Up"
 			v-on:click="signup()"
 			>
@@ -88,10 +88,10 @@
         <h3>Login</h3>
         <div class="form-group">
             <label for="email">Email</label>
-            <input id="email" 
-            type="email" 
-            name="email" 
-            class="form-control" 
+            <input id="email"
+            type="email"
+            name="email"
+            class="form-control"
             placeholder="email"
             v-model="sharedState.user.email"
             required
@@ -99,9 +99,9 @@
         </div>
         <div class="form-group">
             <label for="password">Password</label>
-            <input id="password" 
-            type="password" 
-            class="form-control" 
+            <input id="password"
+            type="password"
+            class="form-control"
             name="password"
             v-model="sharedState.user.password"
             required
@@ -109,8 +109,8 @@
         </div>
         <div class="form-group">
             <input id="signup-btn"
-            type="submit" 
-            class="btn btn-primary" 
+            type="submit"
+            class="btn btn-primary"
             value="Log In"
             v-on:click="login()"
             >
@@ -119,11 +119,24 @@
   </div>
 </section>
 
-<div id="newprediction" v-model="prediction" class="container" v-if="sharedState.session.isActive == true">
+<section id="new-prediction" class="container" v-if="sharedState.session.isActive == true">
 	<h3>My Prediction</h3>
+	<div id="newprediction" v-model="prediction" class="container">
 		<div class="form-group">
-			<label for="predix-title">Topic</label>
-			<input type="text" 
+			<label for="topic">Topic</label>
+			<select id="topic" class="form-control">
+				<option disabled selected>Pick a topic…</option>
+				<option is="topic-comp"
+					v-for="topic in topics"
+					v-bind:value="topic.id"
+					v-bind:title="topic.title"
+					>
+				</option>
+			</select>
+		</div>
+		<div class="form-group">
+			<label for="predix-title">Title</label>
+			<input type="text"
 			id="predix-title"
 			class="form-control"
 			v-model="prediction.title"
@@ -131,16 +144,16 @@
 		</div>
 		<div class="form-group">
 			<label for="predix-premise">I predict…</label>
-			<input 
-			type="text" 
-			class="form-control" 
+			<input
+			type="text"
+			class="form-control"
 			v-model="prediction.premise"
 			/>
 		</div>
 		<div class="form-group">
 			<label for="predix-description">Details</label>
 			<textarea
-			class="form-control" 
+			class="form-control"
 			v-model="prediction.description"
 			></textarea>
 		</div>
@@ -149,7 +162,7 @@
 
 <section id="predictions" class="container">
 	<div class="row">
-	<prediction-comp 
+	<prediction-comp
 		v-for="prediction in predictions"
 		v-bind:prediction="prediction"
         v-bind:user="user"

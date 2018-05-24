@@ -21,7 +21,17 @@ var store = {
             title: '',
             premise: '',
             description: ''
-        }
+        },
+        topics: [
+          {
+            id: 1,
+            title: "Topic Uno"
+          },
+          {
+            id: 2,
+            title: "Topic Dos"
+          }
+        ]
     },
     updateSession: function(isActive, auth_token) {
         this.state.session.isActive = isActive;
@@ -69,7 +79,7 @@ var store = {
             this.state.user[thisKey] = newUser[thisKey];
         }
 
-        
+
         GreetingView.updateGreeting();
 
         return this.state.user;
@@ -90,6 +100,7 @@ const NewPrediction = new Vue({
     el: '#newprediction',
     data: {
         prediction: store.state.prediction,
+        topics: store.state.topics,
         sharedState: store.state
     },
     methods: {
@@ -99,7 +110,7 @@ const NewPrediction = new Vue({
                 url: '/predictions',
                 headers: {
                     Authorization: 'Bearer ' + this.sharedState.session.auth_token
-                }, 
+                },
                 data: {
                     title: this.prediction.title,
                     premise: this.prediction.premise,
@@ -234,7 +245,7 @@ const AccountView = new Vue({
             // Pull some stuff out of persistence
             let localStore = window.localStorage;
             let isSessionActive = localStore.getItem('session_is_active');
-            if (!isSessionActive) { 
+            if (!isSessionActive) {
                 console.log('Not logged in.');
                 return;
             }
@@ -267,12 +278,49 @@ const AccountView = new Vue({
     }
 });
 
+Vue.component('topic-comp', {
+  props: [
+    'title'
+  ],
+  template:
+    '<option>\
+        {{ title }}\
+    </option>',
+  methods: {
+
+  }
+});
+
+const TopicsView = new Vue({
+    el: '#topic',
+    data: {
+        topics: []
+    },
+    mounted: function () {
+        this.fetchData();
+    },
+    methods: {
+      fetchData: function() {
+        this.topics = [
+          {
+            id: 1,
+            title: "Topic One"
+          },
+          {
+            id: 2,
+            title: "Topic Too"
+          }
+        ]
+      }
+    }
+});
+
 Vue.component('prediction-comp', {
     props: [
         'prediction',
         'user'
     ],
-    template: 
+    template:
         '<div class="col-sm-12 col-md-6 col-lg-4 col-xl-3" v-model="prediction">\
             <h4>{{ prediction.title }}</h4>\
             <p>{{ prediction.premise }}</p>\
@@ -341,7 +389,7 @@ const PredictionsView = new Vue({
                 url: '/predictions/' + predix.id,
                 headers: {
                     Authorization: 'Bearer ' + this.sharedState.session.auth_token
-                }, 
+                },
                 data: {
                 }
             }).then(response => {
@@ -387,7 +435,7 @@ const PredictionsView = new Vue({
                     NotificationsView.notifications.push({
                         message: 'Your session has expired.',
                         type: 'warning'
-                    });                    
+                    });
                     return;
                 }
 
@@ -411,7 +459,7 @@ const NotificationsView = new Vue({
     methods: {
         notifications: function(options) {
             var message,
-                kind, 
+                kind,
                 oid = this.notifications.length;
             if (!!options.message) {
                 messages = options.message;
