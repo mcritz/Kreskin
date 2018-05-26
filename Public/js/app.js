@@ -22,16 +22,7 @@ var store = {
             premise: '',
             description: ''
         },
-        topics: [
-          {
-            id: 1,
-            title: "Topic Uno"
-          },
-          {
-            id: 2,
-            title: "Topic Dos"
-          }
-        ]
+        topics: []
     },
     updateSession: function(isActive, auth_token) {
         this.state.session.isActive = isActive;
@@ -96,14 +87,60 @@ var store = {
     }
 }
 
+Vue.component('topic-comp', {
+  props: [
+    'title'
+  ],
+  template: `
+    <option>
+      {{ title }}
+    </option>`,
+  methods: {
+
+  }
+});
+
+const TopicsView = new Vue({
+    el: '#topic',
+    data: {
+        topics: []
+    },
+    mounted: function () {
+        this.fetchData();
+    },
+    methods: {
+      fetchData: function() {
+        axios.get('/topics').then(response => {
+          this.topics = response.data;
+          console.log('TopicsView: ', response);
+        })
+      }
+    }
+});
+
 const NewPrediction = new Vue({
     el: '#newprediction',
     data: {
         prediction: store.state.prediction,
-        topics: store.state.topics,
+        // topics: store.state.topics,
         sharedState: store.state
     },
+    components: {
+      'topic-comp': TopicsView
+    },
+    mounted: function() {
+      // this.fetchData();
+    },
     methods: {
+      fetchData: function() {
+        axios.get('/topics').then(response => {
+          this.$nextTick(function() {
+            this.topics = response.data;
+            store.state.topics = response.data;
+            console.log('NewPrediction: ', response);
+          });
+        });
+      },
         submitPrediction: function() {
             axios({
                 method: 'post',
@@ -278,43 +315,6 @@ const AccountView = new Vue({
     }
 });
 
-Vue.component('topic-comp', {
-  props: [
-    'title'
-  ],
-  template:
-    '<option>\
-        {{ title }}\
-    </option>',
-  methods: {
-
-  }
-});
-
-const TopicsView = new Vue({
-    el: '#topic',
-    data: {
-        topics: []
-    },
-    mounted: function () {
-        this.fetchData();
-    },
-    methods: {
-      fetchData: function() {
-        this.topics = [
-          {
-            id: 1,
-            title: "Topic One"
-          },
-          {
-            id: 2,
-            title: "Topic Too"
-          }
-        ]
-      }
-    }
-});
-
 Vue.component('prediction-comp', {
     props: [
         'prediction',
@@ -457,7 +457,7 @@ const NotificationsView = new Vue({
     mounted: function () {
     },
     methods: {
-        notifications: function(options) {
+        notifications: function(newpredictionnewpredictions) {
             var message,
                 kind,
                 oid = this.notifications.length;
