@@ -122,25 +122,12 @@ const NewPrediction = new Vue({
     el: '#newprediction',
     data: {
         prediction: store.state.prediction,
-        // topics: store.state.topics,
         sharedState: store.state
     },
     components: {
       'topic-comp': TopicsView
     },
-    mounted: function() {
-      // this.fetchData();
-    },
     methods: {
-      fetchData: function() {
-        axios.get('/topics').then(response => {
-          this.$nextTick(function() {
-            this.topics = response.data;
-            store.state.topics = response.data;
-            console.log('NewPrediction: ', response);
-          });
-        });
-      },
         submitPrediction: function() {
             axios({
                 method: 'post',
@@ -208,8 +195,6 @@ const AccountView = new Vue({
             axios.post('/logout', {
 
             }).then(response => {
-                console.log('logout', response);
-
                 store.destroyUser();
                 window.sessionStorage.clear();
 
@@ -227,7 +212,6 @@ const AccountView = new Vue({
                     message: 'Error: Logout failed',
                     type: 'error'
                 });
-                console.log('logout fail', error);
             });
         },
         signup: function(evt) {
@@ -253,7 +237,6 @@ const AccountView = new Vue({
                     password: this.sharedState.user.password
                 }
             }).then(response => {
-                console.log('login', response);
                 var tempUser = response.data.user;
 
                 tempUser.auth_token = response.data.token;
@@ -275,7 +258,6 @@ const AccountView = new Vue({
                     message: error.response.data.reason,
                     type: "error"
                 });
-                console.log('failed login', error);
             });
         },
         checkLogin: function() {
@@ -283,12 +265,10 @@ const AccountView = new Vue({
             let localStore = window.localStorage;
             let isSessionActive = localStore.getItem('session_is_active');
             if (!isSessionActive) {
-                console.log('Not logged in.');
                 return;
             }
             let auth_token = localStore.getItem(CONST.AUTH_TOKEN);
             if (!auth_token) {
-                console.log('Auth Token invalid.');
                 return;
             }
 

@@ -16,10 +16,11 @@ final class Prediction: Model {
     var premise: String
     var description: String
     var isRevealed: Bool
+    var topicId: Int
     var userId: Int
     
     
-    init(title: String, premise: String, description: String, isRevealed: Bool? = false, userId: Int) {
+    init(title: String, premise: String, description: String, isRevealed: Bool? = false, userId: Int, topicId: Int) {
         self.title = title
         self.premise = premise
         self.description = description
@@ -29,6 +30,7 @@ final class Prediction: Model {
             self.isRevealed = false
         }
         self.userId = userId
+        self.topicId = topicId
     }
     
     init(row: Row) throws {
@@ -37,6 +39,7 @@ final class Prediction: Model {
         description = try row.get("description")
         isRevealed = try row.get("isRevealed")
         userId = try row.get("user_id")
+        topicId = try row.get("topic_id")
     }
     
     func makeRow() throws -> Row {
@@ -46,6 +49,7 @@ final class Prediction: Model {
         try row.set("description", description)
         try row.set("isRevealed", isRevealed)
         try row.set("user_id", userId)
+        try row.set("topic_id", topicId)
         return row
     }
 }
@@ -75,7 +79,8 @@ extension Prediction: JSONConvertible {
             premise: json.get("premise"),
             description: json.get("description"),
             isRevealed: false,
-            userId: userId
+            userId: userId,
+            topicId: json.get("topicId")
         )
     }
     func makeJSON() throws -> JSON {
@@ -92,6 +97,7 @@ extension Prediction: JSONConvertible {
             try json.set("createdAt", createdAt)
         }
         try json.set("userId", userId)
+        try json.set("topicId", topicId)
         return json
     }
 }
@@ -100,6 +106,23 @@ extension Prediction: ResponseRepresentable { }
 extension Prediction: NodeRepresentable { }
 extension Prediction: Timestampable { }
 
+
+final class PredixTopicFKeyMigration: Preparation {
+    static func prepare(_ database: Database) throws {
+        do {
+            try database.modify(Prediction.self) { builder in
+                print("MODIFY: Add TopicId FKey to Prediction")
+                builder.foreignId(for: Topic.self)
+            }
+        } catch {
+            print("ONOESZ! Failed Migration for Prediction TopicID FKey")
+        }
+    }
+    
+    static func revert(_ database: Database) throws {
+        try database.delete(User.self)
+    }
+}
 
 
 

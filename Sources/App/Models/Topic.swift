@@ -33,6 +33,13 @@ final class Topic: Model {
     }
 }
 
+// MARK: Relations & Representation
+extension Topic {
+    var predictions: Children<Topic, Prediction> {
+        return children()
+    }
+}
+
 extension Topic: Preparation {
     static func prepare(_ database: Database) throws {
         try database.create(self) { builder in
@@ -73,3 +80,4 @@ extension Topic: JSONConvertible {
 extension Topic: ResponseRepresentable { }
 extension Topic: NodeRepresentable { }
 extension Topic: Timestampable { }
+

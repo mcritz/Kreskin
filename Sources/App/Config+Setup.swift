@@ -29,5 +29,6 @@ extension Config {
         
         // Update schema after all models provisioned
         preparations.append(AdminMigration.self)
+        preparations.append(PredixTopicFKeyMigration.self)
     }
 }

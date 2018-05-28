@@ -11,7 +11,9 @@ final class PredictionController {
     
     func index(_ req: Request) throws -> ResponseRepresentable {
         let maybePredictions = try preditions(user: nil)?.makeJSON()
-        guard let predix: JSON = maybePredictions else { throw Abort(.internalServerError) }
+        guard let predix: JSON = maybePredictions else {
+            throw Abort(.internalServerError, reason: "Could not get predictions")
+        }
         return predix
     }
     

@@ -125,12 +125,14 @@
 			<label for="topic">Topic</label>
 			<select id="topic" class="form-control">
 				<option disabled selected>Pick a topic…</option>
-				<option is="topic-comp"
-					v-for="topic in topics"
-					v-bind:value="topic.id"
-					v-bind:title="topic.title"
-					>
-				</option>
+				<optgroup title="Topics">
+					<option is="topic-comp"
+						v-for="topic in topics"
+						v-bind:value="topic.id"
+						v-bind:title="topic.title"
+						>
+					</option>
+				</optgroup>
 			</select>
 		</div>
 		<div id="newprediction" v-model="prediction">
