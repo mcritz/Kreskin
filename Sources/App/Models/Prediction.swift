@@ -75,7 +75,7 @@ extension Prediction: JSONConvertible {
             premise: json.get("premise"),
             description: json.get("description"),
             isRevealed: false,
-            userId: userId`
+            userId: userId
         )
     }
     func makeJSON() throws -> JSON {
